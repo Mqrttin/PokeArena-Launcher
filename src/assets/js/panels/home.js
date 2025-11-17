@@ -181,7 +181,9 @@ class Home {
 
             verify: options.verify,
             ignored: [...options.ignored],
-            javaPath: configClient.java_config.java_path,
+            java: {
+                path: configClient.java_config.java_path
+            },
 
             screen: {
                 width: configClient.game_config.screen_size.width,
@@ -246,33 +248,34 @@ class Home {
         progressBar.style.display = "";
         ipcRenderer.send('main-window-progress-load')
 
-        launch.on('extrayendo', extract => {
-            ipcRenderer.send('main-window-progress-load')
-            console.log(extract);
+        let fake = 0;
+            let anim = setInterval(() => {
+            fake = (fake + 2) % 100;
+            progressBar.value = fake;
+            progressBar.max = 100;
+            infoStarting.innerHTML = `Preparando archivos...`;
+        }, 150);
+
+        launch.on('progress', (percent) => {
+            clearInterval(anim); // Stop fake animation
+            const clean = Math.min(Math.max(percent, 0), 100);
+            infoStarting.innerHTML = `Descargando ${clean.toFixed(0)}%`;
+            progressBar.value = clean;
+            progressBar.max = 100;
         });
 
-        launch.on('progreso', (progress, size) => {
-            infoStarting.innerHTML = `Cargando ${((progress / size) * 100).toFixed(0)}%`
-            ipcRenderer.send('main-window-progress', { progress, size })
-            progressBar.value = progress;
-            progressBar.max = size;
+        launch.on('extract', file => {
+            infoStarting.innerHTML = `Verificando ${file}`
         });
 
-        launch.on('check', (progress, size) => {
-            infoStarting.innerHTML = `Verificación ${((progress / size) * 100).toFixed(0)}%`
-            ipcRenderer.send('main-window-progress', { progress, size })
-            progressBar.value = progress;
-            progressBar.max = size;
-        });
-
-        launch.on('estimado', (time) => {
+        launch.on('estimated', (time) => {
             let hours = Math.floor(time / 3600);
             let minutes = Math.floor((time - hours * 3600) / 60);
             let seconds = Math.floor(time - hours * 3600 - minutes * 60);
             console.log(`${hours}h ${minutes}m ${seconds}s`);
         })
 
-        launch.on('velocidad', (speed) => {
+        launch.on('speed', (speed) => {
             console.log(`${(speed / 1067008).toFixed(2)} Mb/s`)
         })
 
@@ -294,19 +297,11 @@ class Home {
         })
 
         launch.on('close', code => {
-            if (configClient.launcher_config.closeLauncher == 'close-launcher') {
-                ipcRenderer.send("main-window-show")
-            };
-            ipcRenderer.send('main-window-progress-reset')
 
-            infoStartingBOX.style.display = "none"
-            infoStartingBOX.removeAttribute("style")
+            // 🔥 Cerrar completamente el launcher al cerrar Minecraft
+            ipcRenderer.send('force-exit');
+            return;
 
-            playInstanceBTN.style.display = "flex"
-            infoStarting.innerHTML = `Verificación`
-
-            new logger(pkg.name, '#7289da');
-            console.log('Cerrar');
         });
 
         launch.on('error', err => {

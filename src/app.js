@@ -46,7 +46,7 @@ function quitLauncher() {
 const { status } = require('minecraft-server-util');
 
 function actualizarJugadoresRPC() {
-    status('207.246.73.149', 25530) // usa el puerto de conexión normal del servidor
+    status('mc.universocraft.net', 25565) // usa el puerto de conexión normal del servidor
         .then((response) => {
             console.log('Estado del servidor:', response);
 
@@ -184,6 +184,10 @@ ipcMain.on('minecraft-launch', () => {
 ipcMain.on('minecraft-close', () => {
     const win = MainWindow.getWindow();
     if (win) win.webContents.send('resume-audio');
+});
+
+ipcMain.on('force-exit', () => {
+    quitLauncher();
 });
 
 ipcMain.handle('Microsoft-window', async (_, client_id) => {
