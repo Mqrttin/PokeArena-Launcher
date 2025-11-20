@@ -304,15 +304,17 @@ class Settings {
         let closeBox = document.querySelector(".close-box");
         let closeLauncher = configClient?.launcher_config?.closeLauncher || "close-launcher";
 
-        if (closeLauncher == "close-launcher") {
+
+        /*Botones de selección de comportamiento de launcher*/
+        /*if (closeLauncher == "close-launcher") {
             document.querySelector('.close-launcher').classList.add('active-close');
         } else if (closeLauncher == "close-all") {
             document.querySelector('.close-all').classList.add('active-close');
         } else if (closeLauncher == "close-none") {
             document.querySelector('.close-none').classList.add('active-close');
-        }
+        }*/
 
-        closeBox.addEventListener("click", async e => {
+        /*closeBox.addEventListener("click", async e => {
             if (e.target.classList.contains('close-btn')) {
                 let activeClose = document.querySelector('.active-close');
                 if (e.target.classList.contains('active-close')) return
@@ -334,7 +336,7 @@ class Settings {
                     await this.db.updateData('configClient', configClient);
                 }
             }
-        })
+        })*/
     }
 }
 export default Settings;
