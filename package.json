@@ -1,7 +1,7 @@
 {
     "name": "suh-launcher",
     "preductname": "Soul Ultra Hardcore",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Launcher Oficial de Soul Ultra Hardcore",
     "main": "src/app.js",
     "author": {
@@ -9,7 +9,7 @@
         "email": "contacto.imnortuso@gmail.com",
         "url": "https://github.com/Mqrttin"
     },
-    "url": "https://suh.fixfis.online/%20soulultrahardcore/",
+    "url": "https://suh.wstr.fr/soulultrahardcore/",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
