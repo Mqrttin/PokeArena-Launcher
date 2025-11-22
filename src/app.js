@@ -46,7 +46,7 @@ function quitLauncher() {
 const { status } = require('minecraft-server-util');
 
 function actualizarJugadoresRPC() {
-    status('45.63.108.27', 25530) // usa el puerto de conexión normal del servidor
+    status('172.96.172.240', 25530) // usa el puerto de conexión normal del servidor
         .then((response) => {
             console.log('Estado del servidor:', response);
 
