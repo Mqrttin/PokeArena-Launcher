@@ -621,10 +621,10 @@
     text-align: center;
     font-weight: bold;
     font-size: 24px;
-    background: linear-gradient(90deg, #006d5b, #007c6a, #00977c, #00b89a, #42eacb);
+    background: linear-gradient(90deg, #ff6a00, #ff7f00, #ff9100, #ffa500, #ffb733);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    text-shadow: 0 0 10px #ffa5004d; /* glow naranja suave */
 }
 
 /* Divider con gradiente */
@@ -634,8 +634,8 @@
     width: 90%;
     margin: 20px auto;
     border-radius: 999px;
-    background: linear-gradient(90deg, #006d5b, #007c6a, #00977c, #00b89a, #42eacb);
-    box-shadow: 0 0 10px #00b89a;
+    background: linear-gradient(90deg, #ff6a00, #ff7f00, #ff9100, #ffa500, #ffb733);
+    box-shadow: 0 0 10px #ffa5004d;
 }
 
 
@@ -676,25 +676,32 @@
     color: white; /* texto visible sobre la caja oscura */
 }
 
-.wave-suh span {
+.wave-pokearena span {
   color: #ff7b00;
   display: inline-block;
   text-shadow: 0 0 4px #ff7b00, 0 0 8px #ff7b00;
   animation: waveGlow 1.2s infinite ease-in-out;
 }
 
-.wave-suh span:nth-child(1) { animation-delay: 0s; }
-.wave-suh span:nth-child(2) { animation-delay: 0.05s; }
-.wave-suh span:nth-child(3) { animation-delay: 0.10s; }
-.wave-suh span:nth-child(4) { animation-delay: 0.15s; }
-.wave-suh span:nth-child(5) { animation-delay: 0.20s; }
-.wave-suh span:nth-child(6) { animation-delay: 0.25s; }
-.wave-suh span:nth-child(7) { animation-delay: 0.30s; }
-.wave-suh span:nth-child(8) { animation-delay: 0.35s; }
-.wave-suh span:nth-child(9) { animation-delay: 0.40s; }
-.wave-suh span:nth-child(10){ animation-delay: 0.45s; }
-.wave-suh span:nth-child(11){ animation-delay: 0.50s; }
-.wave-suh span:nth-child(12){ animation-delay: 0.55s; }
+/* Animation delays para 18 letras */
+.wave-pokearena span:nth-child(1)  { animation-delay: 0s; }
+.wave-pokearena span:nth-child(2)  { animation-delay: 0.05s; }
+.wave-pokearena span:nth-child(3)  { animation-delay: 0.10s; }
+.wave-pokearena span:nth-child(4)  { animation-delay: 0.15s; }
+.wave-pokearena span:nth-child(5)  { animation-delay: 0.20s; }
+.wave-pokearena span:nth-child(6)  { animation-delay: 0.25s; }
+.wave-pokearena span:nth-child(7)  { animation-delay: 0.30s; }
+.wave-pokearena span:nth-child(8)  { animation-delay: 0.35s; }
+.wave-pokearena span:nth-child(9)  { animation-delay: 0.40s; }
+.wave-pokearena span:nth-child(10) { animation-delay: 0.45s; }
+.wave-pokearena span:nth-child(11) { animation-delay: 0.50s; }
+.wave-pokearena span:nth-child(12) { animation-delay: 0.55s; }
+.wave-pokearena span:nth-child(13) { animation-delay: 0.60s; }
+.wave-pokearena span:nth-child(14) { animation-delay: 0.65s; }
+.wave-pokearena span:nth-child(15) { animation-delay: 0.70s; }
+.wave-pokearena span:nth-child(16) { animation-delay: 0.75s; }
+.wave-pokearena span:nth-child(17) { animation-delay: 0.80s; }
+.wave-pokearena span:nth-child(18) { animation-delay: 0.85s; }
 
 @keyframes waveGlow {
   0%,100% {
@@ -708,6 +715,7 @@
     transform: translateY(-2px);
   }
 }
+
 
 .wave-purple span {
   color: #b300ff;
@@ -755,4 +763,17 @@
         0 0 5px rgba(255, 255, 255, 0.7),
         0 0 10px rgba(255, 255, 255, 0.5),
         0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Links dentro de la caja de créditos */
+.credits-box a {
+    color: white;            /* color blanco */
+    text-decoration: none;   /* sin subrayado */
+    font-weight: 500;        /* opcional: se ve más limpio */
+}
+
+/* Efecto al pasar el mouse */
+.credits-box a:hover {
+    text-decoration: underline;   /* o puedes poner color si quieres */
+    opacity: 0.8;                 /* efecto suave */
 }

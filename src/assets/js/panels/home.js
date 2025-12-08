@@ -20,6 +20,19 @@ class Home {
 
         this.instancesSelect()
         document.querySelector('.settings-btn').addEventListener('click', e => changePanel('settings'))
+
+            // --- CLICK EN PLAYER HEAD → ABRIR AJUSTES EN CUENTAS ---
+    document.querySelector(".player-head").addEventListener("click", () => {
+
+        // 1) Abrir menú de ajustes
+        document.querySelector(".settings-btn").click();
+
+        // 2) Esperar a que el panel settings cargue y abrir "Cuentas"
+        setTimeout(() => {
+            let btn = document.getElementById("account");
+            if (btn) btn.click();
+        }, 150);
+    });
     }
 
     // --- SOCIAL-BLOCKS ---
@@ -31,12 +44,13 @@ class Home {
             })
         });
     }
+    
 
     // --- LOGOS DE PARTNERS ---
     initPartnerLogos() {
         const logos = [
-            { id: 'logo-top-left', url: 'https://discord.gg/cxX2VzdScB' },
-            { id: 'logo-top-right', url: 'https://discord.gg/fYrUwPhg3b' }
+            { id: 'logo-top-left', url: 'https://tienda.pokearena.net/' },
+            { id: 'logo-top-right', url: 'https://discord.com/invite/pokearena' }
         ];
 
         logos.forEach(logo => {
@@ -49,102 +63,93 @@ class Home {
         });
     }
 
-    async instancesSelect() {
-        let configClient = await this.db.readData('configClient')
-        let auth = await this.db.readData('accounts', configClient.account_selected)
-        let instancesList = await config.getInstanceList()
-        let instanceSelect = instancesList.find(i => i.name == configClient?.instance_selct) ? configClient?.instance_selct : null
+async instancesSelect() {
+    let configClient = await this.db.readData('configClient')
+    let auth = await this.db.readData('accounts', configClient.account_selected)
+    let instancesList = await config.getInstanceList()
+    let instanceSelect = configClient.instance_selct
 
-        let instanceBTN = document.querySelector('.play-instance')
-        let instancePopup = document.querySelector('.instance-popup')
-        let instancesListPopup = document.querySelector('.instances-List')
-        let instanceCloseBTN = document.querySelector('.close-popup')
+    let instanceBTN = document.querySelector('.play-instance')
+    let instancePopup = document.querySelector('.instance-popup')
+    let instanceCloseBTN = document.querySelector('.close-popup')
 
-        if (instancesList.length === 1) {
-            document.querySelector('.instance-select').style.display = 'none'
-            instanceBTN.style.paddingRight = '0'
-        }
-
-        if (!instanceSelect) {
-            let newInstanceSelect = instancesList.find(i => i.whitelistActive == false)
-            let configClient = await this.db.readData('configClient')
-            configClient.instance_selct = newInstanceSelect.name
-            instanceSelect = newInstanceSelect.name
-            await this.db.updateData('configClient', configClient)
-        }
-
-        for (let instance of instancesList) {
-            if (instance.whitelistActive) {
-                let whitelist = instance.whitelist.find(whitelist => whitelist == auth?.name)
-                if (whitelist !== auth?.name) {
-                    if (instance.name == instanceSelect) {
-                        let newInstanceSelect = instancesList.find(i => i.whitelistActive == false)
-                        let configClient = await this.db.readData('configClient')
-                        configClient.instance_selct = newInstanceSelect.name
-                        instanceSelect = newInstanceSelect.name
-                        setStatus(newInstanceSelect.status)
-                        await this.db.updateData('configClient', configClient)
-                    }
-                }
-            } else console.log(`Initializing instance ${instance.name}...`)
-            if (instance.name == instanceSelect) setStatus(instance.status)
-        }
-
-        instancePopup.addEventListener('click', async e => {
-            let configClient = await this.db.readData('configClient')
-
-            if (e.target.classList.contains('instance-elements')) {
-                let newInstanceSelect = e.target.id
-                let activeInstanceSelect = document.querySelector('.active-instance')
-
-                if (activeInstanceSelect) activeInstanceSelect.classList.toggle('active-instance');
-                e.target.classList.add('active-instance');
-
-                configClient.instance_selct = newInstanceSelect
-                await this.db.updateData('configClient', configClient)
-                instanceSelect = instancesList.filter(i => i.name == newInstanceSelect)
-                instancePopup.style.display = 'none'
-                let instance = await config.getInstanceList()
-                let options = instance.find(i => i.name == configClient.instance_selct)
-                await setStatus(options.status)
-            }
-        })
-
-        instanceBTN.addEventListener('click', async e => {
-            let configClient = await this.db.readData('configClient')
-            let instanceSelect = configClient.instance_selct
-            let auth = await this.db.readData('accounts', configClient.account_selected)
-
-            if (e.target.classList.contains('instance-select')) {
-                instancesListPopup.innerHTML = ''
-                for (let instance of instancesList) {
-                    if (instance.whitelistActive) {
-                        instance.whitelist.map(whitelist => {
-                            if (whitelist == auth?.name) {
-                                if (instance.name == instanceSelect) {
-                                    instancesListPopup.innerHTML += `<div id="${instance.name}" class="instance-elements active-instance">${instance.name}</div>`
-                                } else {
-                                    instancesListPopup.innerHTML += `<div id="${instance.name}" class="instance-elements">${instance.name}</div>`
-                                }
-                            }
-                        })
-                    } else {
-                        if (instance.name == instanceSelect) {
-                            instancesListPopup.innerHTML += `<div id="${instance.name}" class="instance-elements active-instance">${instance.name}</div>`
-                        } else {
-                            instancesListPopup.innerHTML += `<div id="${instance.name}" class="instance-elements">${instance.name}</div>`
-                        }
-                    }
-                }
-
-                instancePopup.style.display = 'flex'
-            }
-
-            if (!e.target.classList.contains('instance-select')) this.startGame()
-        })
-
-        instanceCloseBTN.addEventListener('click', () => instancePopup.style.display = 'none')
+    // Mostrar instancia actual en el botón
+    // Mostrar instancia actual en el botón y actualizar info del servidor
+if (instanceSelect) {
+    // Nombre bonito para mostrar en el botón
+    let uiName = "";
+    if (instanceSelect.startsWith("Cobblemon")) {
+        uiName = instanceSelect.includes("Low") ? "Cobblemon Low Profile" : "Cobblemon High Profile";
+    } else if (instanceSelect.startsWith("Pixelmon")) {
+        uiName = instanceSelect.includes("Low") ? "Pixelmon Low Profile" : "Pixelmon High Profile";
+    } else {
+        uiName = instanceSelect; // fallback por si hay algo raro
     }
+
+    // Mostrar en el launcher
+    document.querySelector('.instance-select').innerHTML = uiName;
+
+    // Actualizar información del servidor automáticamente
+    let instanceInfo = instancesList.find(i => i.name === instanceSelect);
+    if (instanceInfo) {
+        setStatus(instanceInfo.status); // Esto actualizará nombre del servidor y jugadores
+    }
+}
+
+
+    // Mostrar popup al presionar el botón
+    instanceBTN.addEventListener('click', e => {
+        if (e.target.classList.contains('instance-select')) {
+            instancePopup.style.display = 'flex'
+        } else {
+            this.startGame()
+        }
+    })
+
+    // Cerrar popup
+    instanceCloseBTN.addEventListener('click', () => {
+        instancePopup.style.display = 'none'
+    })
+
+    // Botones Low/High
+    document.querySelectorAll('.profile-btn').forEach(btn => {
+    btn.addEventListener('click', async e => {
+
+        const box = e.target.closest('.instance-box')
+        const type = box.dataset.type   // cobblemon / pixelmon
+        const profile = e.target.dataset.profile  // low / high
+
+        // Nombre REAL del webhost
+        let instanceName = "";
+        if (type === "cobblemon") {
+            instanceName = (profile === "low") ? "Cobblemon Low Profile" : "Cobblemon High Profile";
+        } else if (type === "pixelmon") {
+            instanceName = (profile === "low") ? "Pixelmon Low Profile" : "Pixelmon High Profile";
+        }
+
+        // Nombre bonito para mostrarlo en el botón
+        const uiName =
+            (type === "cobblemon" ? "Cobblemon" : "Pixelmon") +
+            (profile === "low" ? " Low Profile" : " High Profile");
+
+        // Guardar en config
+        configClient.instance_selct = instanceName;
+        await this.db.updateData('configClient', configClient);
+
+        // Mostrar en el launcher
+        document.querySelector('.instance-select').innerHTML = uiName;
+
+        // Cerrar popup
+        instancePopup.style.display = 'none';
+
+        // Actualizar información del servidor arriba
+        let list = await config.getInstanceList();
+        let instance = list.find(i => i.name === instanceName);
+        if (instance) setStatus(instance.status);
+    })
+});
+
+}
 
     async startGame() {
 

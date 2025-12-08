@@ -309,16 +309,19 @@
   background: url("../../images/default/setve.png") no-repeat;
   background-size: cover;
   image-rendering: pixelated;
-  transition: var(--transition);
-  height: 5rem; /* Tamaño aumentado */
-  width: 5em;  /* Tamaño aumentado */
-  pointer-events: none;
+  height: 5rem;
+  width: 5rem;
+  cursor: pointer;
   border-radius: 15px;
-  justify-content: left;
-  align-items: left;
-  margin-left: 0;
-  transform: translate(10px, -55px); /* Mover hacia arriba */
+  transition: var(--transition);
+  transform: translate(10px, -55px);
 }
+
+.player-head:hover {
+  transform: translate(10px, -55px) scale(1.1); /* igual que settings-btn */
+  filter: brightness(1.2);                       /* igual que settings-btn */
+}
+
 
 .player-menu {
   color: var(--element-color);
@@ -658,42 +661,61 @@ body {
 
 /* Centrar horizontalmente el contenido principal (play) */
 .bottom-bar .play-elements {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* <-- crucial: centra el contenido horizontalmente */
-  gap: 12px;
-  padding: 0 6px;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 6px;
 }
 
-/* Contenedor play-instance dentro de la barra: eliminar margin-left:auto que lo empujaba */
+/* Contenedor play-instance dentro de la barra */
 .bottom-bar .play-instance {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-  margin: 0 !important; /* override del margin-left: auto */
-  padding: 0;
-  flex-wrap: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px; /* separación botón <-> selector */
 }
 
-/* Botón Jugar: override de tamaño y transform dentro de la barra */
 .bottom-bar .play-btn {
-  padding: 10px 28px;
-  height: 52px;
-  min-height: 52px;
-  border-radius: 12px;
-  border: 2px solid var(--accent);
-  color: white;
-  background: transparent;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.45), inset 0 0 6px rgba(255,255,255,0.02);
-  font: 600 18px/1 "Poppins", system-ui, sans-serif;
-  cursor: pointer;
-  transform: none !important;
-  transition: transform 0.25s ease, opacity 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 12px;
+    border: 2px solid var(--accent);
+    color: white;
+    background: transparent;
+    cursor: pointer;
 }
 
+.bottom-bar .instance-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease; /* transición suave */
+    cursor: pointer;
+}
 
+.bottom-bar .instance-select .icon-arrow {
+    width: 16px;
+    height: 16px;
+    background-image: url('assets/images/arrow.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: all 0.2s ease; /* transición suave para crecer */
+}
+
+.bottom-bar .instance-select:hover .icon-arrow:hover {
+    width: 20px;  /* flecha más grande */
+    height: 20px;
+}
 
 /* Settings: boton a la derecha */
 .bottom-bar .settings-section {
@@ -834,11 +856,55 @@ body {
   }
 }
 
-/* Logo esquina izquierda arriba */
+/* Tooltip base */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 110%; /* encima */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  transform-origin: bottom center;
+  transform: translateX(-50%) scale(0.9);
+}
+
+/* Flechita */
+[data-tooltip]::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.75) transparent transparent transparent;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+/* Mostrar tooltip */
+[data-tooltip]:hover::after,
+[data-tooltip]:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
 #logo-top-left {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 100px;
+    right: 16px;
     width: 100px; /* ajusta tamaño */
     height: auto;
     z-index: 1000;
@@ -849,7 +915,7 @@ body {
     position: absolute;
     top: 50px;
     right: 10px;
-    width: 100px;
+    width: 112px;
     height: auto;
     z-index: 1000;
 }
@@ -867,3 +933,47 @@ body {
 }
 
 /* Fin del archivo home.css */
+
+.instance-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.instance-box {
+    background: rgba(0,0,0,0.4);
+    padding: 20px;
+    border-radius: 15px;
+    width: 220px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+    border: 1px solid #ffffff30;
+}
+
+.instance-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 10px;
+}
+
+.instance-buttons {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-btn {
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: #3c93ff;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+.profile-btn:hover {
+    background: #1c7be0;
+}

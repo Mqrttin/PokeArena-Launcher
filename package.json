@@ -1,7 +1,7 @@
 {
     "name": "pokearena-launcher",
     "preductname": "PokeArena Launcher",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "Launcher Oficial de PokeArena",
     "main": "src/app.js",
     "author": {
@@ -9,7 +9,7 @@
         "email": "contacto.imnortuso@gmail.com",
         "url": "https://github.com/Mqrttin"
     },
-    "url": "https://suh.wstr.fr/soulultrahardcore/",
+    "url": "https://suh.wstr.fr/PA/",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",

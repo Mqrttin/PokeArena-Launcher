@@ -162,7 +162,7 @@ input::-webkit-inner-spin-button {
     pointer-events: none;
 
     /* Solo afecta al texto */
-    background: linear-gradient(90deg, #006d5b, #007c6a, #00977c, #00b89a, #42eacb);
+    background: linear-gradient(90deg, #ff6a00, #ff7f00, #ff9100, #ffa500, #ffb733);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

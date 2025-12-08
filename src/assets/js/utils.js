@@ -16,38 +16,38 @@ import { skin2D } from './utils/skin.js';
 import slider from './utils/slider.js';
 
 async function setBackground(theme, urlFondo) {
+    // Si no se pasa tema, lo obtiene de la config local
     if (typeof theme == 'undefined') {
         let databaseLauncher = new database();
         let configClient = await databaseLauncher.readData('configClient');
-        theme = configClient?.launcher_config?.theme || "auto"
-        theme = await ipcRenderer.invoke('is-dark-theme', theme).then(res => res)
+        theme = configClient?.launcher_config?.theme || "auto";
+        theme = await ipcRenderer.invoke('is-dark-theme', theme).then(res => res);
     }
+
     let background;
     let body = document.body;
     body.className = theme ? 'dark global' : 'light global';
 
-    try {
-        const response = await fetch("https://suh.fixfis.online/%20soulultrahardcore/backlogo.php", { cache: "no-store" });
-        if (response.ok) {
-            const data = await response.json();
-            if (data?.data) {
-                urlFondo = data.data;
-            }
-        }
-    } catch (error) {
-        console.error("Error al obtener fondo remoto:", error);
-    }
+    // URL directa de fondo remoto (tu PNG)
+    if (!urlFondo) urlFondo = "https://suh.wstr.fr/fondo2.png";
 
-    if (urlFondo) {
-        background = `linear-gradient(#00000080, #00000080), url(${urlFondo})`;
-    } else if (fs.existsSync(`${__dirname}/assets/images/background/easterEgg`) && Math.random() < 0.005) {
-        let backgrounds = fs.readdirSync(`${__dirname}/assets/images/background/easterEgg`);
-        let Background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-        background = `url(./assets/images/background/easterEgg/${Background})`;
-    } else if (fs.existsSync(`${__dirname}/assets/images/background/${theme ? 'dark' : 'light'}`)) {
-        let backgrounds = fs.readdirSync(`${__dirname}/assets/images/background/${theme ? 'dark' : 'light'}`);
-        let Background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-        background = `linear-gradient(#00000080, #00000080), url(./assets/images/background/${theme ? 'dark' : 'light'}/${Background})`;
+    // Asignar fondo remoto si existe
+    background = `linear-gradient(#00000080, #00000080), url(${urlFondo})`;
+
+    // Si no hay URL (seguro hay fondo local como fallback)
+    if (!background) {
+        // Fondo Easter Egg local
+        if (fs.existsSync(`${__dirname}/assets/images/background/easterEgg`) && Math.random() < 0.005) {
+            let backgrounds = fs.readdirSync(`${__dirname}/assets/images/background/easterEgg`);
+            let Background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+            background = `url(./assets/images/background/easterEgg/${Background})`;
+        } 
+        // Fondos locales según tema
+        else if (fs.existsSync(`${__dirname}/assets/images/background/${theme ? 'dark' : 'light'}`)) {
+            let backgrounds = fs.readdirSync(`${__dirname}/assets/images/background/${theme ? 'dark' : 'light'}`);
+            let Background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+            background = `linear-gradient(#00000080, #00000080), url(./assets/images/background/${theme ? 'dark' : 'light'}/${Background})`;
+        }
     }
 
     body.style.backgroundImage = background ? background : theme ? '#000' : '#fff';
@@ -60,17 +60,17 @@ setBackground();
 
 async function changePanel(id) {
     let panel = document.querySelector(`.${id}`);
-    let active = document.querySelector(`.active`)
+    let active = document.querySelector(`.active`);
     if (active) active.classList.toggle("active");
     panel.classList.add("active");
 }
 
 async function appdata() {
-    return await ipcRenderer.invoke('appData').then(path => path)
+    return await ipcRenderer.invoke('appData').then(path => path);
 }
 
 async function addAccount(data) {
-    let skin = false
+    let skin = false;
     if (data?.profile?.skins[0]?.base64) skin = await new skin2D().creatHeadTexture(data.profile.skins[0].base64);
     let div = document.createElement("div");
     div.classList.add("account");
@@ -84,13 +84,13 @@ async function addAccount(data) {
         <div class="delete-profile" id="${data.ID}">
             <div class="icon-account-delete delete-profile-icon"></div>
         </div>
-    `
+    `;
     return document.querySelector('.accounts-list').appendChild(div);
 }
 
 async function accountSelect(data) {
     let account = document.getElementById(`${data.ID}`);
-    let activeAccount = document.querySelector('.account-select')
+    let activeAccount = document.querySelector('.account-select');
 
     if (activeAccount) activeAccount.classList.toggle('account-select');
     account.classList.add('account-select');
@@ -103,36 +103,35 @@ async function headplayer(skinBase64) {
 }
 
 async function setStatus(opt) {
-    let nameServerElement = document.querySelector('.server-status-name')
-    let statusServerElement = document.querySelector('.server-status-text')
-    let playersOnline = document.querySelector('.status-player-count .player-count')
+    let nameServerElement = document.querySelector('.server-status-name');
+    let statusServerElement = document.querySelector('.server-status-text');
+    let playersOnline = document.querySelector('.status-player-count .player-count');
 
     if (!opt) {
-        statusServerElement.classList.add('red')
-        statusServerElement.innerHTML = `Apagado`
-        document.querySelector('.status-player-count').classList.add('red')
-        playersOnline.innerHTML = '0'
-        return
+        statusServerElement.classList.add('red');
+        statusServerElement.innerHTML = `Apagado`;
+        document.querySelector('.status-player-count').classList.add('red');
+        playersOnline.innerHTML = '0';
+        return;
     }
 
-    let { ip, port, nameServer } = opt
-    nameServerElement.innerHTML = nameServer
+    let { ip, port, nameServer } = opt;
+    nameServerElement.innerHTML = nameServer;
     let status = new Status(ip, port);
     let statusServer = await status.getStatus().then(res => res).catch(err => err);
 
     if (!statusServer.error) {
-        statusServerElement.classList.remove('red')
-        document.querySelector('.status-player-count').classList.remove('red')
-        statusServerElement.innerHTML = `En línea`
-        playersOnline.innerHTML = statusServer.playersConnect
+        statusServerElement.classList.remove('red');
+        document.querySelector('.status-player-count').classList.remove('red');
+        statusServerElement.innerHTML = `En línea`;
+        playersOnline.innerHTML = statusServer.playersConnect;
     } else {
-        statusServerElement.classList.add('red')
-        statusServerElement.innerHTML = `Apagado`
-        document.querySelector('.status-player-count').classList.add('red')
-        playersOnline.innerHTML = '0'
+        statusServerElement.classList.add('red');
+        statusServerElement.innerHTML = `Apagado`;
+        document.querySelector('.status-player-count').classList.add('red');
+        playersOnline.innerHTML = '0';
     }
 }
-
 
 export {
     appdata as appdata,
@@ -148,4 +147,4 @@ export {
     slider as Slider,
     pkg as pkg,
     setStatus as setStatus
-}
+};

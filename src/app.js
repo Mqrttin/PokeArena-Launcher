@@ -15,7 +15,7 @@ const MainWindow = require("./assets/js/windows/mainWindow.js");
 
 let tray = null; // Variable global para tray
 
-const rpc = require('discord-rich-presence')('1430756350371168307');
+const rpc = require('discord-rich-presence')('1442994982997721201');
 
 // --- Librería para consultar servidor Minecraft ---
 const { queryFull } = require('minecraft-server-util');
@@ -46,7 +46,7 @@ function quitLauncher() {
 const { status } = require('minecraft-server-util');
 
 function actualizarJugadoresRPC() {
-    status('172.96.172.240', 25530) // usa el puerto de conexión normal del servidor
+    status('play.pokearena.net', 25565) // usa el puerto de conexión normal del servidor
         .then((response) => {
             console.log('Estado del servidor:', response);
 
@@ -55,10 +55,10 @@ function actualizarJugadoresRPC() {
 
             rpc.updatePresence({
                 state: `Jugadores: ${jugadoresConectados}/${maxJugadores}`,
-                details: 'Jugando Soul Ultra Hardcore',
+                details: 'Jugando en PokeArena Network',
                 startTimestamp: Date.now(),
                 largeImageKey: 'logo',
-                largeImageText: 'SoulUltraHardcore',
+                largeImageText: 'PokeArena Network',
                 instance: true,
             });
         })
@@ -69,7 +69,7 @@ function actualizarJugadoresRPC() {
                 details: 'Intenta más tarde',
                 startTimestamp: Date.now(),
                 largeImageKey: 'logo',
-                largeImageText: 'SoulUltraHardcore',
+                largeImageText: 'PokeArena Network',
                 instance: true,
             });
         });
@@ -78,10 +78,10 @@ function actualizarJugadoresRPC() {
 // ---------------- RPC Inicial ----------------
 rpc.updatePresence({
     state: 'Jugando',
-    details: '¿Estás listo?',
+    details: '¡Capturalos Todos!',
     startTimestamp: Date.now(),
     largeImageKey: 'logo',
-    largeImageText: 'SoulUltraHardcore',
+    largeImageText: 'PokeArena Network',
     instance: true,
 });
 
@@ -114,7 +114,7 @@ else app.whenReady().then(() => {
     // ---------------- Tray antiguo ----------------
     tray = new Tray(path.join(__dirname, 'assets', 'images', 'icon.png'));
 
-    tray.setToolTip('Soul Ultra Hardcore Launcher'); // <-- NUEVA LÍNEA
+    tray.setToolTip('PokeArena Launcher'); // <-- NUEVA LÍNEA
     
     const contextMenu = Menu.buildFromTemplate([
         { 
