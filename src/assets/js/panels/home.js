@@ -10,8 +10,37 @@ const { shell, ipcRenderer } = require('electron')
 class Home {
     static id = "home";
     async init(config) {
-        this.config = config;
-        this.db = new database();
+    this.config = config;
+    this.db = new database();
+
+    let configClient = await this.db.readData('configClient');
+
+    if (!configClient || Object.keys(configClient).length === 0) {
+        console.log("Creando configClient por primera vez");
+
+        await this.db.createData('configClient', {
+            account_selected: null,
+            instance_selct: null,
+            launcher_config: {
+                closeLauncher: "close-launcher",
+                download_multi: true,
+                intelEnabledMac: false
+            },
+            java_config: {
+                java_path: null,
+                java_memory: {
+                    min: 2,
+                    max: 4
+                }
+            },
+            game_config: {
+                screen_size: {
+                    width: 854,
+                    height: 480
+                }
+            }
+        });
+    }
 
         // --- FUNCIONES DE LOGOS Y REDES ---
         this.initSocials();
@@ -157,10 +186,19 @@ if (instanceSelect) {
         const path = require('path');
 
         let launch = new Launch()
-        let configClient = await this.db.readData('configClient')
-        let instance = await config.getInstanceList()
-        let authenticator = await this.db.readData('accounts', configClient.account_selected)
-        let options = instance.find(i => i.name == configClient.instance_selct)
+
+let configClient = await this.db.readData('configClient')
+console.log("CONFIG CLIENT =>", configClient)
+
+let instance = await config.getInstanceList()
+
+console.log("ACCOUNT_SELECTED =>", configClient.account_selected)
+
+let authenticator = await this.db.readData('accounts', configClient.account_selected)
+console.log("AUTH OBJECT =>", authenticator)
+
+let options = instance.find(i => i.name == configClient.instance_selct)
+
 
         let playInstanceBTN = document.querySelector('.play-instance')
         let infoStartingBOX = document.querySelector('.info-starting-game')
@@ -200,6 +238,7 @@ if (instanceSelect) {
                 max: `${configClient.java_config.java_memory.max * 1024}M`
             }
         }
+        
 
         ipcRenderer.send('minecraft-launch');
 
@@ -248,6 +287,7 @@ if (instanceSelect) {
 
         launch.Launch(opt);
 
+        console.log("AUTH OBJECT =>", authenticator);
         playInstanceBTN.style.display = "none"
         infoStartingBOX.style.display = "block"
         progressBar.style.display = "";
