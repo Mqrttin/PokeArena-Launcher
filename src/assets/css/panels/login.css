@@ -55,7 +55,7 @@
 
 /* Cambio específico: input de login offline en negro */
 .login-offline .input-login .email {
-  color: white;
+  color: rgb(255, 0, 0);
 }
 
 /* === EFECTOS HOVER === */
@@ -72,7 +72,7 @@
 /* Hover específico para botón Premium */
 .connect-button-online:hover {
   background: gold;
-  color: #000;
+  color: #ffffff;
   border-color: gold;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
   transform: scale(1.05);
@@ -128,4 +128,185 @@
     padding: 0.5rem 3rem;
     font-size: 1rem;
   }
+}
+
+
+/* === TITULO HOME === */
+.login-title {
+  font-size: 2rem;
+  margin-bottom: 25px;
+}
+
+/* CONTENEDOR DE TARJETAS */
+.login-home-cards {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+}
+
+/* TARJETAS PREMIUM / NO PREMIUM */
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 20px 30px;
+
+  border: 3px solid black;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* IMAGEN */
+.login-card img {
+  width: 80px;
+  height: 80px;
+}
+
+/* TEXTO */
+.login-card span {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 20px;
+  border-radius: 15px;
+  font-weight: bold;
+}
+
+/* HOVER GENERAL */
+.login-card:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* PREMIUM HOVER */
+.connect-button-online:hover {
+  background: rgba(255, 215, 0, 0.2);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+}
+
+/* NO PREMIUM HOVER */
+.connect-button-offline:hover {
+  background: rgba(0, 123, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
+}
+
+/* Quitar caja SOLO del home */
+.login-home {
+  background: none;
+  padding: 0;
+  min-width: unset;
+}
+
+/* Solo la imagen rebota al pasar el mouse */
+.login-card:hover img,
+.connect-button-online:hover img,
+.connect-button-offline:hover img {
+  animation: pokemon-bounce 0.6s infinite ease-in-out;
+}
+
+
+@keyframes pokemon-bounce {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-7px); }
+  60%  { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+
+/* Contenedor offline */
+.login-offline {
+  display: none; /* asegúrate de que se muestre */
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  background: rgba(30, 30, 30, 0.95); /* fondo ligeramente oscuro */
+  border-radius: 20px; /* bordes redondeados */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4); /* sombra suave */
+  text-align: center;
+  min-width: 400px;
+  opacity: 0;
+  transform: translateY(-15px);
+  animation: fadeInOffline 0.4s forwards;
+}
+
+/* Animación fade-in */
+@keyframes fadeInOffline {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Texto */
+.login-offline .login-text {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+/* Input */
+.login-offline .input-login .email {
+  width: 80%;
+  padding: 0.5rem 1rem;
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: 25px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  margin-bottom: 15px;
+  transition: all 0.3s ease-in-out;
+}
+
+.login-offline .input-login .email:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 10px rgba(0,191,255,0.5);
+  outline: none;
+}
+
+/* Botones */
+.login-offline .connect-offline,
+.login-offline .cancel-offline {
+  width: 60%;
+  padding: 0.5rem 1rem;
+  margin: 8px 0;
+  border-radius: 25px;
+  border: 2px solid #00bfff;
+  background: rgba(0,191,255,0.1);
+  color: #00bfff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.login-offline .connect-offline:hover,
+.login-offline .cancel-offline:hover {
+  background: #00bfff;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0,191,255,0.4);
+}
+
+
+/* Animación fade-in para botones de login home */
+.login-home .login-card {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: fadeInHome 0.5s forwards;
+}
+
+/* Keyframes de la animación */
+@keyframes fadeInHome {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Retrasos opcionales para que aparezcan uno por uno */
+.login-home .connect-button-online {
+  animation-delay: 0.3s;
+}
+
+.login-home .connect-button-offline {
+  animation-delay: 0.5s;
 }

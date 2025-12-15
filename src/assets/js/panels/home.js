@@ -197,6 +197,71 @@ console.log("ACCOUNT_SELECTED =>", configClient.account_selected)
 let authenticator = await this.db.readData('accounts', configClient.account_selected)
 console.log("AUTH OBJECT =>", authenticator)
 
+// ===============================
+// 🔐 COMPATIBILIDAD CUENTAS (HOME ANTIGUO)
+// ===============================
+
+// 1️⃣ No hay cuenta seleccionada
+if (!configClient.account_selected) {
+    let pop = new popup()
+    pop.openPopup({
+        title: 'Cuenta no seleccionada',
+        content: 'Debes iniciar sesión con una cuenta premium para jugar.',
+        color: 'red',
+        options: true
+    })
+    changePanel('login')
+    return
+}
+
+// 2️⃣ Cuenta no existe en DB
+if (!authenticator) {
+    let pop = new popup()
+    pop.openPopup({
+        title: 'Cuenta inválida',
+        content: 'La cuenta seleccionada no existe. Inicia sesión nuevamente.',
+        color: 'red',
+        options: true
+    })
+    changePanel('login')
+    return
+}
+
+// 3️⃣ Sesión premium incompleta (CAUSA DEL ERROR)
+if (
+    !authenticator.access_token ||
+    !authenticator.client_token ||
+    !authenticator.uuid ||
+    !authenticator.name
+) {
+    let pop = new popup()
+    pop.openPopup({
+        title: 'Sesión expirada',
+        content: 'Tu sesión premium expiró. Inicia sesión nuevamente.',
+        color: 'red',
+        options: true
+    })
+    changePanel('login')
+    return
+}
+
+// 4️⃣ Bloquear offline accidental
+if (authenticator.offline === true) {
+    let pop = new popup()
+    pop.openPopup({
+        title: 'Cuenta no premium',
+        content: 'Esta instancia requiere una cuenta premium.',
+        color: 'red',
+        options: true
+    })
+    return
+}
+
+// ===============================
+// ✅ FIN COMPATIBILIDAD ANTIGUA
+// ===============================
+
+
 let options = instance.find(i => i.name == configClient.instance_selct)
 
 
