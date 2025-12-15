@@ -47,8 +47,8 @@ const startTime = Date.now();
 
 // ---------------- RPC Inicial ----------------
 rpc.updatePresence({
-    state: 'Jugando',
-    details: '¡Capturalos Todos!',
+    state: 'play.pokearena.net',
+    details: 'Jugando en PokeArena Network',
     startTimestamp: startTime,
     largeImageKey: 'logo',
     largeImageText: 'PokeArena Network',
@@ -56,39 +56,6 @@ rpc.updatePresence({
 });
 
 console.log("Discord Rich Presence activado.");
-
-// ---------------- Función actualizada: Actualizar RPC con jugadores ----------------
-function actualizarJugadoresRPC() {
-    status('play.pokearena.net', 25565) // usa el puerto de conexión normal del servidor
-        .then((response) => {
-            const jugadoresConectados = response.players?.online ?? 0;
-            const maxJugadores = response.players?.max ?? 0;
-
-            rpc.updatePresence({
-                state: `Jugadores: ${jugadoresConectados}/${maxJugadores}`,
-                details: 'Jugando en PokeArena Network',
-                startTimestamp: startTime, // reutilizamos el timestamp inicial
-                largeImageKey: 'logo',
-                largeImageText: 'PokeArena Network',
-                instance: true,
-            });
-        })
-        .catch((err) => {
-            console.error('Error al consultar servidor:', err);
-            rpc.updatePresence({
-                state: 'Servidor offline',
-                details: 'Intenta más tarde',
-                startTimestamp: startTime, // reutilizamos el timestamp inicial
-                largeImageKey: 'logo',
-                largeImageText: 'PokeArena Network',
-                instance: true,
-            });
-        });
-}
-
-// ---------------- Ejecutar actualización de jugadores cada 15s ----------------
-setInterval(actualizarJugadoresRPC, 15000);
-actualizarJugadoresRPC(); // Llamada inicial
 
 // ---------------- Resto de tu código original ----------------
 let dev = process.env.NODE_ENV === 'dev';

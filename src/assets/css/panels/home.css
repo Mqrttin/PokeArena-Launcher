@@ -977,3 +977,29 @@ body {
 .profile-btn:hover {
     background: #1c7be0;
 }
+
+/* Estado inicial de las cajas: ocultas y ligeramente abajo */
+.instance-box {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Cuando se agregue la clase show: aparece suavemente */
+.instance-box.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Inicialmente oculto y desplazado hacia arriba */
+.instances-tab {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Clase para mostrarlo suavemente */
+.instances-tab.show {
+    opacity: 1;
+    transform: translateY(0);
+}

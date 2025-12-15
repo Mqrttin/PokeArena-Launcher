@@ -454,6 +454,14 @@
     filter: dropshadow(color=#bababa, offx=0, offy=0);
     transform: scale(1.05);
   }
+
+  #resolution-tab .settings-elements {
+    display: flex;              /* flex para posicionar horizontalmente */
+    justify-content: flex-end;  /* lo pone a la derecha */
+    align-items: center;        /* centra verticalmente */
+    height: 100px;              /* ajusta según tu preferencia */
+    padding-right: 10px;        /* separación del borde derecho */
+}
   
   /*******************************************************************************
    *                                                                             *
@@ -776,4 +784,31 @@
 .credits-box a:hover {
     text-decoration: underline;   /* o puedes poner color si quieres */
     opacity: 0.8;                 /* efecto suave */
+}
+
+/* Botón de abrir mods */
+.open-mods-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+/* Imagen dentro del botón */
+.open-mods-btn img {
+    width: 100px;   /* tamaño grande */
+    height: 100px;
+    transition: transform 0.2s ease;
+}
+
+/* Hover y click del botón */
+.open-mods-btn:hover img {
+    transform: scale(1.1);
+}
+
+.open-mods-btn:active img {
+    transform: scale(0.95);
 }

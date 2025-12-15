@@ -127,18 +127,41 @@ if (instanceSelect) {
 
 
     // Mostrar popup al presionar el botón
-    instanceBTN.addEventListener('click', e => {
-        if (e.target.classList.contains('instance-select')) {
-            instancePopup.style.display = 'flex'
-        } else {
-            this.startGame()
-        }
-    })
+instanceBTN.addEventListener('click', e => {
+    if (e.target.classList.contains('instance-select')) {
+        instancePopup.style.display = 'flex';
 
-    // Cerrar popup
-    instanceCloseBTN.addEventListener('click', () => {
-        instancePopup.style.display = 'none'
-    })
+        // Animar el panel completo
+        const tab = document.querySelector('.instances-tab');
+        tab.classList.remove('show'); // reset
+        setTimeout(() => tab.classList.add('show'), 10); // pequeño delay para forzar transición
+
+        // Animación en cascada de las instance-box
+        const boxes = document.querySelectorAll('.instance-box');
+        boxes.forEach((box, index) => {
+            box.classList.remove('show'); // reset
+            setTimeout(() => box.classList.add('show'), index * 100);
+        });
+
+    } else {
+        this.startGame();
+    }
+});
+
+instanceCloseBTN.addEventListener('click', () => {
+    const tab = document.querySelector('.instances-tab');
+    const boxes = document.querySelectorAll('.instance-box');
+
+    // Quitar clase show para iniciar animación de salida
+    tab.classList.remove('show');
+    boxes.forEach(box => box.classList.remove('show'));
+
+    // Esperar a que termine la transición antes de ocultar el popup
+    setTimeout(() => {
+        document.querySelector('.instance-popup').style.display = 'none';
+    }, 400); // coincide con la duración de la transición
+});
+
 
     // Botones Low/High
     document.querySelectorAll('.profile-btn').forEach(btn => {
