@@ -18,7 +18,7 @@ let tray = null; // Variable global para tray
 const rpc = require('discord-rich-presence')('1442994982997721201');
 
 // --- Librería para consultar servidor Minecraft ---
-const { queryFull } = require('minecraft-server-util');
+const { queryFull, status } = require('minecraft-server-util');
 
 // ---------------- Función para salir del launcher ----------------
 function quitLauncher() {
@@ -42,21 +42,32 @@ function quitLauncher() {
     app.exit(0);
 }
 
-// ---------------- Función actualizada: Actualizar RPC con jugadores ----------------
-const { status } = require('minecraft-server-util');
+// ---------------- RPC: Timestamp único para que no se reinicie ----------------
+const startTime = Date.now();
 
+// ---------------- RPC Inicial ----------------
+rpc.updatePresence({
+    state: 'Jugando',
+    details: '¡Capturalos Todos!',
+    startTimestamp: startTime,
+    largeImageKey: 'logo',
+    largeImageText: 'PokeArena Network',
+    instance: true,
+});
+
+console.log("Discord Rich Presence activado.");
+
+// ---------------- Función actualizada: Actualizar RPC con jugadores ----------------
 function actualizarJugadoresRPC() {
     status('play.pokearena.net', 25565) // usa el puerto de conexión normal del servidor
         .then((response) => {
-            console.log('Estado del servidor:', response);
-
             const jugadoresConectados = response.players?.online ?? 0;
             const maxJugadores = response.players?.max ?? 0;
 
             rpc.updatePresence({
                 state: `Jugadores: ${jugadoresConectados}/${maxJugadores}`,
                 details: 'Jugando en PokeArena Network',
-                startTimestamp: Date.now(),
+                startTimestamp: startTime, // reutilizamos el timestamp inicial
                 largeImageKey: 'logo',
                 largeImageText: 'PokeArena Network',
                 instance: true,
@@ -67,25 +78,13 @@ function actualizarJugadoresRPC() {
             rpc.updatePresence({
                 state: 'Servidor offline',
                 details: 'Intenta más tarde',
-                startTimestamp: Date.now(),
+                startTimestamp: startTime, // reutilizamos el timestamp inicial
                 largeImageKey: 'logo',
                 largeImageText: 'PokeArena Network',
                 instance: true,
             });
         });
 }
-
-// ---------------- RPC Inicial ----------------
-rpc.updatePresence({
-    state: 'Jugando',
-    details: '¡Capturalos Todos!',
-    startTimestamp: Date.now(),
-    largeImageKey: 'logo',
-    largeImageText: 'PokeArena Network',
-    instance: true,
-});
-
-console.log("Discord Rich Presence activado.");
 
 // ---------------- Ejecutar actualización de jugadores cada 15s ----------------
 setInterval(actualizarJugadoresRPC, 15000);
