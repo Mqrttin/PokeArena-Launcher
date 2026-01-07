@@ -29,7 +29,7 @@ async function setBackground(theme, urlFondo) {
     body.className = theme ? 'dark global' : 'light global';
 
     // URL directa de fondo remoto (tu PNG)
-    if (!urlFondo) urlFondo = "https://suh.wstr.fr/fondo2.png";
+    if (!urlFondo) urlFondo = "https://pokearena.wstr.fr/img/fondopa.png";
 
     // Asignar fondo remoto si existe
     background = `linear-gradient(#00000080, #00000080), url(${urlFondo})`;
