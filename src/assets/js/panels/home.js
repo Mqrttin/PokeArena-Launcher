@@ -376,21 +376,35 @@ let options = instance.find(i => i.name == configClient.instance_selct)
         launch.Launch(opt);
 
         console.log("AUTH OBJECT =>", authenticator);
-        playInstanceBTN.style.display = "none"
-        infoStartingBOX.style.display = "block"
+        playInstanceBTN.style.display = "none";
+        infoStartingBOX.style.display = "block";
         progressBar.style.display = "";
-        ipcRenderer.send('main-window-progress-load')
+        progressBar.value = 0;
+        progressBar.max = 100;
 
-        let fake = 0;
-            let anim = setInterval(() => {
-            fake = (fake + 2) % 100;
-            progressBar.value = fake;
-            progressBar.max = 100;
-            infoStarting.innerHTML = `Preparando archivos...`;
-        }, 150);
+        // Pasos de preparación simulados (si no hay descarga)
+        const steps = [
+            { text: 'Verificando archivos...', value: 25 },
+            { text: 'Preparando librerías...', value: 50 },
+            { text: 'Configurando instancia...', value: 75 },
+            { text: 'Ejecutando!', value: 100 }
+        ];
+
+        let currentStep = 0;
+        const prepInterval = setInterval(() => {
+            progressBar.value = steps[currentStep].value;
+            infoStarting.innerHTML = steps[currentStep].text;
+            currentStep++;
+
+            if (currentStep >= steps.length) {
+                clearInterval(prepInterval);
+            // Aquí se queda la barra visible si hay descargas reales
+            }
+        }, 700);
+
 
         launch.on('progress', (percent) => {
-            clearInterval(anim); // Stop fake animation
+            clearInterval(prepInterval);
             const clean = Math.min(Math.max(percent, 0), 100);
             infoStarting.innerHTML = `Descargando ${clean.toFixed(0)}%`;
             progressBar.value = clean;
