@@ -13,6 +13,13 @@ class Settings {
     async init(config) {
         this.config = config;
         this.db = new database();
+
+        // ✅ SOLO afecta al panel de settings
+        requestAnimationFrame(() => {
+        const settingsContainer = document.querySelector('.settings .container');
+        settingsContainer?.classList.add('settings-ready');
+        });
+
         this.navBTN();
         this.accounts();
         this.ram();
