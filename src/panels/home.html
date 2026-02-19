@@ -1,83 +1,102 @@
-<div class="container">
-    <div class="status-server">
-        <img class="server-status-icon" src="assets/images/icon.png">
-        <div class="server-status-infos">
-            <div class="server-status-name">Minecraft</div>
-            <div class="server-status-text">Cargando...</div>
-        </div>
-        <div class="status-player-count">
-            <div class="player-count">0</div>
-        </div>
-    </div>
+<div class="home">
 
-    <!-- Logos posicionados en esquinas y centro arriba -->
-<div class="particle-container">
-    <img src="assets/images/carrito.png" id="logo-top-left" class="icon">
-</div>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
 
-<div class="particle-container">
-    <img src="assets/images/dc.png" id="logo-top-right" class="icon">
-</div>
-
-    <div class="home-bottom">
-        <div class="new-tab">
-            <div class="news-list content-scroll"></div>
-        </div>
-    </div>
-
-    <!-- Bottom bar -->
-    <div class="bottom-bar">
-        <div class="player-section">
-            <div class="player-head" data-tooltip="Cuenta"></div>
+        <div class="sidebar-top">
+            <div class="player-head" data-tooltip="Perfil"></div>
         </div>
 
-        <div class="play-section">
-            <div class="play-instance">
-                <button class="play-btn">Jugar</button>
-                <div class="instance-select icon-arrow"></div>
+        <div class="sidebar-middle">
+            <div class="nav-btn" id="nav-discord" data-tooltip="Discord">
+                <img src="assets/images/svgs/discord.svg" alt="Discord" class="nav-icon">
             </div>
-
-            <div class="info-starting-game">
-                <div class="info-starting-game-text">Descargando...</div>
-                <progress value="0" max="100" class="progress-bar"></progress>
+            <div class="nav-btn" id="nav-store" data-tooltip="Tienda">
+                <img src="assets/images/carro.png" alt="Tienda" class="nav-icon">
             </div>
         </div>
 
-        <div class="settings-section">
-            <div class="settings-btn icon-settings"></div>
+        <div class="sidebar-bottom">
+            <div class="settings-btn icon-settings" data-tooltip="Configuración"></div>
         </div>
+
     </div>
 
-<div class="instance-popup">
-    <div class="instances-tab">
-        <div class="close-popup icon-close"></div>
-        <p>Seleccione una instancia</p>
+    <!-- CONTENIDO -->
+    <div class="container">
 
-        <div class="instance-grid">
+        <!-- SERVER STATUS -->
+        <div class="status-server" data-tooltip="Seleccionar instancia">
+            <img class="server-status-icon" src="assets/images/icon.png">
+            <div class="server-status-infos">
+                <div class="server-status-name">Minecraft</div>
+                <div class="server-status-text">Cargando...</div>
+            </div>
+            <div class="status-player-count">
+                <div class="player-count">0</div>
+            </div>
+        </div>
 
-            <!-- C O B B L E M O N -->
-            <div class="instance-box" data-type="cobblemon">
-                <img src="assets/images/cobblemon.png" class="instance-icon">
-                <h2>Cobblemon</h2>
-                <div class="instance-buttons">
-                    <button class="profile-btn" data-profile="low">Low Profile</button>
-                    <button class="profile-btn" data-profile="high">High Profile</button>
+        <!-- NEWS -->
+        <div class="home-bottom">
+            <div class="new-tab">
+                <div class="news-list content-scroll"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTÓN JUGAR Y ACCESO RAPIDO A CARPETA -->
+    <div class="play-floating" style="display: flex; gap: 15px; align-items: center;">
+
+        <!-- BOTÓN JUGAR -->
+        <div class="play-instance">
+            <button class="play-btn">JUGAR</button>
+        </div>
+
+        <!-- BOTÓN CARPETA -->
+        <div id="open-folder" class="open-folder-btn" data-tooltip="Abrir carpeta del launcher" style="width:55px; height:55px; border-radius:15px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:0.3s;">
+            <img src="assets/images/carpeta.png" alt="Carpeta" style="width:28px; height:28px;">
+        </div>
+
+        <!-- INFO DE DESCARGA -->
+        <div class="info-starting-game">
+            <div class="info-starting-game-text">Descargando...</div>
+            <progress value="0" max="100" class="progress-bar"></progress>
+        </div>
+
+    </div>
+
+    <!-- POPUP INSTANCIAS -->
+    <div class="instance-popup">
+        <div class="instances-tab">
+            <div class="close-popup icon-close"></div>
+            <p>Seleccione una instancia</p>
+
+            <div class="instance-grid">
+
+                <div class="instance-box" data-type="cobblemon">
+                    <img src="assets/images/cobblemon.png" class="instance-icon">
+                    <h2>Cobblemon</h2>
+                    <div class="instance-buttons">
+                        <button class="profile-btn" data-profile="low">Bajos Recursos</button>
+                        <button class="profile-btn" data-profile="high">Altos Recursos</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- P I X E L M O N -->
-            <div class="instance-box" data-type="pixelmon">
-                <img src="assets/images/pixelmon.png" class="instance-icon">
-                <h2>Pixelmon</h2>
-                <div class="instance-buttons">
-                    <button class="profile-btn" data-profile="low">Low Profile</button>
-                    <button class="profile-btn" data-profile="high">High Profile</button>
+                <div class="instance-box" data-type="pixelmon">
+                    <img src="assets/images/pixelmon.png" class="instance-icon">
+                    <h2>Pixelmon</h2>
+                    <div class="instance-buttons">
+                        <button class="profile-btn" data-profile="low">Bajos Recursos</button>
+                        <button class="profile-btn" data-profile="high">Altos Recursos</button>
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
-</div>
 
+</div>
 
 <script src="assets/js/home.js"></script>

@@ -3,38 +3,31 @@
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
  */
 
-let console_log = console.log;
-let console_info = console.info;
-let console_warn = console.warn;
-let console_debug = console.debug;
-let console_error = console.error;
-
-class logger {
+class Logger {
     constructor(name, color) {
-        this.Logger(name, color)
+        this.name = name;
+        this.color = color;
     }
 
-    async Logger(name, color) {
-        console.log = value => {
-            console_log.call(console, `%c[${name}]:`, `color: ${color};`, value);
-        };
+    log(...args) {
+        console.log(`%c[${this.name}]:`, `color: ${this.color};`, ...args);
+    }
 
-        console.info = value => {
-            console_info.call(console, `%c[${name}]:`, `color: ${color};`, value);
-        };
+    info(...args) {
+        console.info(`%c[${this.name}]:`, `color: ${this.color};`, ...args);
+    }
 
-        console.warn = value => {
-            console_warn.call(console, `%c[${name}]:`, `color: ${color};`, value);
-        };
+    warn(...args) {
+        console.warn(`%c[${this.name}]:`, `color: ${this.color};`, ...args);
+    }
 
-        console.debug = value => {
-            console_debug.call(console, `%c[${name}]:`, `color: ${color};`, value);
-        };
+    debug(...args) {
+        console.debug(`%c[${this.name}]:`, `color: ${this.color};`, ...args);
+    }
 
-        console.error = value => {
-            console_error.call(console, `%c[${name}]:`, `color: ${color};`, value);
-        };
+    error(...args) {
+        console.error(`%c[${this.name}]:`, `color: ${this.color};`, ...args);
     }
 }
 
-export default logger;
+export default Logger;

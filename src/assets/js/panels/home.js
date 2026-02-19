@@ -48,10 +48,34 @@ class Home {
         // --- FIN FUNCIONES ---
 
         this.instancesSelect()
+        
         document.querySelector('.settings-btn').addEventListener('click', e => changePanel('settings'))
 
+        const discordBtn = document.getElementById('nav-discord');
+        const storeBtn = document.getElementById('nav-store');
+
+        if (discordBtn) {
+            discordBtn.addEventListener('click', () => {
+                shell.openExternal('https://discord.gg/pokearena');
+            });
+        }
+
+        if (storeBtn) {
+            storeBtn.addEventListener('click', () => {
+                shell.openExternal('https://tienda.pokearena.net/');
+            });
+        }
+
+        const openFolderBtn = document.getElementById('open-folder');
+        if (openFolderBtn) {
+            openFolderBtn.addEventListener('click', async () => {
+                const launcherPath = `${await appdata()}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}/instances`;
+                shell.openPath(launcherPath);
+            });
+        }
+
             // --- CLICK EN PLAYER HEAD → ABRIR AJUSTES EN CUENTAS ---
-    document.querySelector(".player-head").addEventListener("click", () => {
+        document.querySelector(".player-head").addEventListener("click", () => {
 
         // 1) Abrir menú de ajustes
         document.querySelector(".settings-btn").click();
@@ -62,6 +86,61 @@ class Home {
             if (btn) btn.click();
         }, 150);
     });
+
+        // Crear un div tooltip global
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        document.body.appendChild(tooltip);
+
+        // Función para mostrar tooltip
+        function showTooltip(e) {
+            const text = e.currentTarget.dataset.tooltip;
+            if (!text) return;
+
+            tooltip.innerText = text;
+            tooltip.style.opacity = "1";
+
+            // Obtener dimensiones del tooltip
+            tooltip.style.left = "0px";
+            tooltip.style.top = "0px";
+            const rect = e.currentTarget.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+
+            // Calcular posición centrada sobre el botón
+            let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+            let top = rect.top - tooltipRect.height - 8; // 8px arriba del botón
+
+            // Evitar que se salga por la izquierda
+            if (left < 4) left = 4;
+
+            // Evitar que se salga por la derecha
+            if (left + tooltipRect.width > window.innerWidth - 4) {
+                left = window.innerWidth - tooltipRect.width - 4;
+            }
+
+            // Evitar que se salga por arriba
+            if (top < 4) {
+                top = rect.bottom + 8; // mostrar debajo si no cabe arriba
+            }
+
+            tooltip.style.left = left + "px";
+            tooltip.style.top = top + "px";
+            tooltip.style.transform = "translateY(0)";
+        }
+
+        // Función para ocultar tooltip
+        function hideTooltip() {
+            tooltip.style.opacity = "0";
+            tooltip.style.transform = "translateY(-4px)";
+        }
+
+        // Asignar listeners a todos los botones con data-tooltip
+        document.querySelectorAll('[data-tooltip]').forEach(el => {
+            el.addEventListener('mouseenter', showTooltip);
+            el.addEventListener('mouseleave', hideTooltip);
+            el.addEventListener('mousemove', showTooltip); // opcional: sigue al cursor
+        });
+
     }
 
     // --- SOCIAL-BLOCKS ---
@@ -93,114 +172,120 @@ class Home {
     }
 
 async instancesSelect() {
+
     let configClient = await this.db.readData('configClient')
-    let auth = await this.db.readData('accounts', configClient.account_selected)
     let instancesList = await config.getInstanceList()
     let instanceSelect = configClient.instance_selct
 
-    let instanceBTN = document.querySelector('.play-instance')
+    let playBTN = document.querySelector('.play-instance')
+    let statusServer = document.querySelector('.status-server')
     let instancePopup = document.querySelector('.instance-popup')
-    let instanceCloseBTN = document.querySelector('.close-popup')
 
-    // Mostrar instancia actual en el botón
-    // Mostrar instancia actual en el botón y actualizar info del servidor
-if (instanceSelect) {
-    // Nombre bonito para mostrar en el botón
-    let uiName = "";
-    if (instanceSelect.startsWith("Cobblemon")) {
-        uiName = instanceSelect.includes("Low") ? "Cobblemon Low Profile" : "Cobblemon High Profile";
-    } else if (instanceSelect.startsWith("Pixelmon")) {
-        uiName = instanceSelect.includes("Low") ? "Pixelmon Low Profile" : "Pixelmon High Profile";
-    } else {
-        uiName = instanceSelect; // fallback por si hay algo raro
-    }
+    // ===============================
+    // MOSTRAR INSTANCIA ACTUAL
+    // ===============================
+    if (instanceSelect) {
 
-    // Mostrar en el launcher
-    document.querySelector('.instance-select').innerHTML = uiName;
+        let uiName = ""
 
-    // Actualizar información del servidor automáticamente
-    let instanceInfo = instancesList.find(i => i.name === instanceSelect);
-    if (instanceInfo) {
-        setStatus(instanceInfo.status); // Esto actualizará nombre del servidor y jugadores
-    }
-}
-
-
-    // Mostrar popup al presionar el botón
-instanceBTN.addEventListener('click', e => {
-    if (e.target.classList.contains('instance-select')) {
-        instancePopup.style.display = 'flex';
-
-        // Animar el panel completo
-        const tab = document.querySelector('.instances-tab');
-        tab.classList.remove('show'); // reset
-        setTimeout(() => tab.classList.add('show'), 10); // pequeño delay para forzar transición
-
-        // Animación en cascada de las instance-box
-        const boxes = document.querySelectorAll('.instance-box');
-        boxes.forEach((box, index) => {
-            box.classList.remove('show'); // reset
-            setTimeout(() => box.classList.add('show'), index * 100);
-        });
-
-    } else {
-        this.startGame();
-    }
-});
-
-instanceCloseBTN.addEventListener('click', () => {
-    const tab = document.querySelector('.instances-tab');
-    const boxes = document.querySelectorAll('.instance-box');
-
-    // Quitar clase show para iniciar animación de salida
-    tab.classList.remove('show');
-    boxes.forEach(box => box.classList.remove('show'));
-
-    // Esperar a que termine la transición antes de ocultar el popup
-    setTimeout(() => {
-        document.querySelector('.instance-popup').style.display = 'none';
-    }, 400); // coincide con la duración de la transición
-});
-
-
-    // Botones Low/High
-    document.querySelectorAll('.profile-btn').forEach(btn => {
-    btn.addEventListener('click', async e => {
-
-        const box = e.target.closest('.instance-box')
-        const type = box.dataset.type   // cobblemon / pixelmon
-        const profile = e.target.dataset.profile  // low / high
-
-        // Nombre REAL del webhost
-        let instanceName = "";
-        if (type === "cobblemon") {
-            instanceName = (profile === "low") ? "Cobblemon Low Profile" : "Cobblemon High Profile";
-        } else if (type === "pixelmon") {
-            instanceName = (profile === "low") ? "Pixelmon Low Profile" : "Pixelmon High Profile";
+        if (instanceSelect.startsWith("Cobblemon")) {
+            uiName = instanceSelect.includes("Low")
+                ? "Cobblemon (Bajos Recursos)"
+                : "Cobblemon (Altos Recursos)"
+        } else if (instanceSelect.startsWith("Pixelmon")) {
+            uiName = instanceSelect.includes("Low")
+                ? "Pixelmon (Bajos Recursos)"
+                : "Pixelmon (Altos Recursos)"
+        } else {
+            uiName = instanceSelect
         }
 
-        // Nombre bonito para mostrarlo en el botón
-        const uiName =
-            (type === "cobblemon" ? "Cobblemon" : "Pixelmon") +
-            (profile === "low" ? " Low Profile" : " High Profile");
+        document.querySelector('.server-status-name').innerHTML = uiName
 
-        // Guardar en config
-        configClient.instance_selct = instanceName;
-        await this.db.updateData('configClient', configClient);
+        let instanceInfo = instancesList.find(i => i.name === instanceSelect)
+        if (instanceInfo) setStatus(instanceInfo.status)
+    }
 
-        // Mostrar en el launcher
-        document.querySelector('.instance-select').innerHTML = uiName;
+    // ===============================
+    // BOTÓN JUGAR
+    // ===============================
+    playBTN.onclick = () => {
+        this.startGame()
+    }
 
-        // Cerrar popup
-        instancePopup.style.display = 'none';
+    // ===============================
+    // CONTROL GLOBAL POPUP
+    // ===============================
 
-        // Actualizar información del servidor arriba
-        let list = await config.getInstanceList();
-        let instance = list.find(i => i.name === instanceName);
-        if (instance) setStatus(instance.status);
+    // Evita duplicar listeners
+    document.onclick = null
+    document.onkeydown = null
+
+    document.addEventListener('click', (e) => {
+
+        // Abrir popup
+        if (e.target.closest('.status-server') || e.target.closest('.selected-instance-box')) {
+            instancePopup.classList.add('active')
+        }
+
+        // Cerrar con X
+        if (e.target.closest('.close-popup')) {
+            instancePopup.classList.remove('active')
+        }
+
+        // Cerrar click fuera
+        if (e.target.classList.contains('instance-popup')) {
+            instancePopup.classList.remove('active')
+        }
     })
-});
 
+    // Cerrar con ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            instancePopup.classList.remove('active')
+        }
+    })
+
+    // ===============================
+    // BOTONES LOW / HIGH
+    // ===============================
+    document.querySelectorAll('.profile-btn').forEach(btn => {
+
+    btn.onclick = async e => {
+
+        const box = e.target.closest('.instance-box')
+        const type = box.dataset.type
+        const profile = e.target.dataset.profile
+
+        // 🔥 CERRAR INMEDIATO (ANTES DE TODO)
+        instancePopup.classList.remove('active')
+
+        let instanceName = ""
+
+        if (type === "cobblemon") {
+            instanceName = profile === "low"
+                ? "Cobblemon Low Profile"
+                : "Cobblemon High Profile"
+        }
+
+        if (type === "pixelmon") {
+            instanceName = profile === "low"
+                ? "Pixelmon Low Profile"
+                : "Pixelmon High Profile"
+        }
+
+        configClient.instance_selct = instanceName
+        await this.db.updateData('configClient', configClient)
+
+        document.querySelector('.server-status-name').innerHTML =
+            type.charAt(0).toUpperCase() + type.slice(1) +
+            (profile === "low" ? " (Bajos Recursos)" : " (Altos Recursos)")
+
+        let list = await config.getInstanceList()
+        let instance = list.find(i => i.name === instanceName)
+        if (instance) setStatus(instance.status)
+    }
+})
 }
 
     async startGame() {
@@ -479,6 +564,27 @@ let options = instance.find(i => i.name == configClient.instance_selct)
         let allMonth = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         return { year: year, month: allMonth[month - 1], day: day }
     }
+
+    async updatePlayerHead(account) {
+        const playerHead = document.querySelector('.player-head');
+        if (!playerHead) return;
+
+        // Si es cuenta offline / no premium
+        if (account.offline === true) {
+            // Steve por defecto
+            playerHead.style.backgroundImage = `url('https://textures.minecraft.net/texture/866248ed12c9f45b093d0e1a0e6b9e8a42b169e1a6d8f0bb0d3a4e3f8c42fc')`;
+        } else if (account.uuid) {
+            // Cuenta premium → mostrar skin real
+            playerHead.style.backgroundImage = `url('https://crafatar.com/avatars/${account.uuid}?size=64&overlay')`;
+        } else {
+            // fallback por si no hay uuid
+            playerHead.style.backgroundImage = `url('https://textures.minecraft.net/texture/866248ed12c9f45b093d0e1a0e6b9e8a42b169e1a6d8f0bb0d3a4e3f8c42fc')`;
+        }
+
+        playerHead.style.backgroundSize = 'cover';
+        playerHead.style.backgroundPosition = 'center';
+    }
+    
 }
 
 export default Home;

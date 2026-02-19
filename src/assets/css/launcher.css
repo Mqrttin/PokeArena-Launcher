@@ -93,47 +93,90 @@ input::-webkit-inner-spin-button {
     background-color: #0000009d;
 }
 
+/* ================================================= */
+/* 🌌 POPUP MODERNO GLASS */
+/* ================================================= */
+
 .popup {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    display: none;
-    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: none; /* tu JS lo activa */
     align-items: center;
+    justify-content: center;
+
+    background: rgba(10, 10, 20, 0.65);
+    backdrop-filter: blur(12px);
+}
+
+/* Caja */
+.popup-tab {
+    width: 420px;
+    max-width: 90%;
+    padding: 30px;
+
+    background: linear-gradient(135deg, #141420, #1c1c2b);
+    border-radius: 25px;
+
+    border: 1px solid rgba(140,123,255,0.25);
+    box-shadow: 0 25px 60px rgba(106,92,255,0.45);
+
+    animation: popupEnter 0.35s ease;
+}
+
+/* Título */
+.popup-title {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 15px;
+    border: none;
+}
+
+/* Contenido */
+.popup-content {
+    text-align: center;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 25px;
+}
+
+/* Botones */
+.popup-options {
+    display: flex;
     justify-content: center;
 }
 
-.popup-tab {
-    width: 40%;
-    padding: 15px;
-    background: var(--background);
-    border-radius: 15px;
-    z-index: 10;
-}
-
-.popup-title {
-    text-align: center;
-    font-size: 2rem;
-    border-bottom: solid 4px var(--color);
-    margin-bottom: 1rem;
-}
-
-.popup-options {
-    display: none;
-    align-items: end;
-    flex-direction: column;
-}
-
 .popup-button {
-    background: none;
-    color: var(--color);
-    border: solid 4px var(--element-color);
-    border-radius: 10px;
-    padding: 0.3rem 4rem;
-    font-size: inherit;
-    font-weight: bold;
-    margin: 15px 10px;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 14px;
+
+    background: linear-gradient(135deg, #6a5cff, #8c7bff);
+    color: white;
+
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.popup-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(106,92,255,0.4);
+}
+
+/* Animación */
+@keyframes popupEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .panel {
