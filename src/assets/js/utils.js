@@ -15,8 +15,14 @@ import popup from './utils/popup.js';
 import { skin2D } from './utils/skin.js';
 import slider from './utils/slider.js';
 
-async function setBackground(theme, urlFondo) {
-    // Si no se pasa tema, lo obtiene de la config local
+/**
+ * Cambia el fondo de pantalla según instancia.
+ * @param {string} theme - 'dark' o 'light' (opcional)
+ * @param {string} urlFondo - URL externa (opcional)
+ * @param {string} instanceType - 'pixelmon' o 'cobblemon' (opcional)
+ */
+async function setBackground(theme, urlFondo, instanceType) {
+    // Obtener tema si no se pasa
     if (typeof theme == 'undefined') {
         let databaseLauncher = new database();
         let configClient = await databaseLauncher.readData('configClient');
@@ -24,25 +30,28 @@ async function setBackground(theme, urlFondo) {
         theme = await ipcRenderer.invoke('is-dark-theme', theme).then(res => res);
     }
 
-    let background;
     let body = document.body;
     body.className = theme ? 'dark global' : 'light global';
 
-    // URL directa de fondo remoto (tu PNG)
+    // --- Fondos para cada instancia ---
+    if (instanceType === "pixelmon") {
+        urlFondo = './assets/images/fondopixel.png'; // las 2 Pixelmon usan el mismo fondo
+    } else if (instanceType === "cobblemon") {
+        urlFondo = './assets/images/fondocobble.png'; // las 2 Cobblemon usan el mismo fondo
+    }
+
+    // URL por defecto si no se asignó
     if (!urlFondo) urlFondo = "https://pokearena.wstr.fr/img/fondofinalPA.png";
 
-    // Asignar fondo remoto si existe
-    background = `linear-gradient(#00000080, #00000080), url(${urlFondo})`;
+    let background = `linear-gradient(#00000080, #00000080), url(${urlFondo})`;
 
-    // Si no hay URL (seguro hay fondo local como fallback)
+    // Fallback a fondos locales/Easter Egg si no hay URL
     if (!background) {
-        // Fondo Easter Egg local
         if (fs.existsSync(`${__dirname}/assets/images/background/easterEgg`) && Math.random() < 0.005) {
             let backgrounds = fs.readdirSync(`${__dirname}/assets/images/background/easterEgg`);
             let Background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
             background = `url(./assets/images/background/easterEgg/${Background})`;
         } 
-        // Fondos locales según tema
         else if (fs.existsSync(`${__dirname}/assets/images/background/${theme ? 'dark' : 'light'}`)) {
             let backgrounds = fs.readdirSync(`${__dirname}/assets/images/background/${theme ? 'dark' : 'light'}`);
             let Background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
@@ -56,7 +65,30 @@ async function setBackground(theme, urlFondo) {
     body.style.backgroundRepeat = 'no-repeat';
 }
 
-setBackground();
+/**
+ * Cambia el fondo con animación (fade in/out)
+ * @param {string} theme 
+ * @param {string} urlFondo 
+ * @param {string} instanceType 
+ */
+async function setBackgroundAnimated(theme, urlFondo, instanceType) {
+    const body = document.body;
+
+    // Si no tiene transición, la agregamos
+    if (!body.style.transition) body.style.transition = 'opacity 0.5s ease-in-out';
+
+    // Fade out
+    body.style.opacity = 0;
+
+    // Cambiamos el fondo después del fade out
+    setTimeout(async () => {
+        await setBackground(theme, urlFondo, instanceType);
+        // Fade in
+        body.style.opacity = 1;
+    }, 500); // coincide con la duración del fade
+}
+
+setBackground(); // carga inicial del fondo
 
 async function changePanel(id) {
     let panel = document.querySelector(`.${id}`);
@@ -141,6 +173,7 @@ export {
     logger as logger,
     popup as popup,
     setBackground as setBackground,
+    setBackgroundAnimated as setBackgroundAnimated,
     skin2D as skin2D,
     addAccount as addAccount,
     accountSelect as accountSelect,

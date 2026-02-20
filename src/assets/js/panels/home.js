@@ -2,7 +2,7 @@
  * @author Luuxis
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0
  */
-import { config, database, logger, changePanel, appdata, setStatus, pkg, popup } from '../utils.js'
+import { config, database, logger, changePanel, appdata, setStatus, pkg, popup, setBackgroundAnimated } from '../utils.js'
 
 const { Launch } = require('minecraft-java-core')
 const { shell, ipcRenderer } = require('electron')
@@ -186,25 +186,31 @@ async instancesSelect() {
     // ===============================
     if (instanceSelect) {
 
-        let uiName = ""
+    let uiName = ""
+    let instanceType = null
 
-        if (instanceSelect.startsWith("Cobblemon")) {
-            uiName = instanceSelect.includes("Low")
-                ? "Cobblemon (Bajos Recursos)"
-                : "Cobblemon (Altos Recursos)"
-        } else if (instanceSelect.startsWith("Pixelmon")) {
-            uiName = instanceSelect.includes("Low")
-                ? "Pixelmon (Bajos Recursos)"
-                : "Pixelmon (Altos Recursos)"
-        } else {
-            uiName = instanceSelect
-        }
-
-        document.querySelector('.server-status-name').innerHTML = uiName
-
-        let instanceInfo = instancesList.find(i => i.name === instanceSelect)
-        if (instanceInfo) setStatus(instanceInfo.status)
+    if (instanceSelect.startsWith("Cobblemon")) {
+        instanceType = "cobblemon"
+        uiName = instanceSelect.includes("Low")
+            ? "Cobblemon (Bajos Recursos)"
+            : "Cobblemon (Altos Recursos)"
+    } else if (instanceSelect.startsWith("Pixelmon")) {
+        instanceType = "pixelmon"
+        uiName = instanceSelect.includes("Low")
+            ? "Pixelmon (Bajos Recursos)"
+            : "Pixelmon (Altos Recursos)"
+    } else {
+        uiName = instanceSelect
     }
+
+    document.querySelector('.server-status-name').innerHTML = uiName
+
+    let instanceInfo = instancesList.find(i => i.name === instanceSelect)
+    if (instanceInfo) setStatus(instanceInfo.status)
+
+    // ⚡ Ahora el fondo se carga correctamente según la instancia guardada
+    setBackgroundAnimated(undefined, undefined, instanceType)
+}
 
     // ===============================
     // BOTÓN JUGAR
@@ -284,6 +290,8 @@ async instancesSelect() {
         let list = await config.getInstanceList()
         let instance = list.find(i => i.name === instanceName)
         if (instance) setStatus(instance.status)
+
+        setBackgroundAnimated(undefined, undefined, type)
     }
 })
 }

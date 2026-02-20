@@ -261,7 +261,7 @@ class Settings {
     async launcher() {
         let configClient = await this.db.readData('configClient');
 
-        let maxDownloadFiles = configClient?.launcher_config?.download_multi || 5;
+        let maxDownloadFiles = configClient?.launcher_config?.download_multi || 100;
         let maxDownloadFilesInput = document.querySelector(".max-files");
         let maxDownloadFilesReset = document.querySelector(".max-files-reset");
         maxDownloadFilesInput.value = maxDownloadFiles;
@@ -274,8 +274,8 @@ class Settings {
 
         maxDownloadFilesReset.addEventListener("click", async () => {
             let configClient = await this.db.readData('configClient');
-            maxDownloadFilesInput.value = 5;
-            configClient.launcher_config.download_multi = 5;
+            maxDownloadFilesInput.value = 100;
+            configClient.launcher_config.download_multi = 100;
             await this.db.updateData('configClient', configClient);
         });
 
