@@ -1,7 +1,7 @@
 {
     "name": "pokearena-launcher",
     "preductname": "PokeArena Launcher",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Launcher Oficial de PokeArena",
     "main": "src/app.js",
     "author": {
