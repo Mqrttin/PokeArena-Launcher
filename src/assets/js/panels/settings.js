@@ -17,13 +17,11 @@ class Settings {
         // ✅ SOLO afecta al panel de settings
         requestAnimationFrame(() => {
         const settingsContainer = document.querySelector('.settings .container');
-        settingsContainer?.classList.add('settings-ready');
         });
 
         this.navBTN();
         this.accounts();
         this.ram();
-        this.javaPath();
         this.resolution();
         this.launcher();
     }
@@ -141,81 +139,46 @@ class Settings {
         return configClient;
     }
 
-    async ram() {
+async ram() {
+    let config = await this.db.readData('configClient');
+    let totalMem = Math.trunc(os.totalmem() / 1073741824 * 10) / 10;
+    let freeMem = Math.trunc(os.freemem() / 1073741824 * 10) / 10;
+
+    let totalRAM = document.getElementById("total-ram");
+    let freeRAM = document.getElementById("free-ram");
+    let sliderDiv = document.querySelector(".memory-slider");
+
+    if (totalRAM) totalRAM.textContent = `${totalMem} GB`;
+    if (freeRAM) freeRAM.textContent = `${freeMem} GB`;
+    if (sliderDiv) sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
+
+    let ram = config?.java_config?.java_memory ? {
+        ramMin: config.java_config.java_memory.min,
+        ramMax: config.java_config.java_memory.max
+    } : { ramMin: "1", ramMax: "2" };
+
+    if (totalMem < ram.ramMin) {
+        config.java_config.java_memory = { min: 1, max: 2 };
+        await this.db.updateData('configClient', config);
+        ram = { ramMin: "1", ramMax: "2" };
+    }
+
+    let slider = new Slider(".memory-slider", parseFloat(ram.ramMin), parseFloat(ram.ramMax));
+
+    let minSpan = document.querySelector(".slider-touch-left span");
+    let maxSpan = document.querySelector(".slider-touch-right span");
+
+    if (minSpan) minSpan.setAttribute("value", `${ram.ramMin} Go`);
+    if (maxSpan) maxSpan.setAttribute("value", `${ram.ramMax} Go`);
+
+    slider.on("change", async (min, max) => {
         let config = await this.db.readData('configClient');
-        let totalMem = Math.trunc(os.totalmem() / 1073741824 * 10) / 10;
-        let freeMem = Math.trunc(os.freemem() / 1073741824 * 10) / 10;
-
-        document.getElementById("total-ram").textContent = `${totalMem} GB`;
-        document.getElementById("free-ram").textContent = `${freeMem} GB`;
-
-        let sliderDiv = document.querySelector(".memory-slider");
-        sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
-
-        let ram = config?.java_config?.java_memory ? {
-            ramMin: config.java_config.java_memory.min,
-            ramMax: config.java_config.java_memory.max
-        } : { ramMin: "1", ramMax: "2" };
-
-        if (totalMem < ram.ramMin) {
-            config.java_config.java_memory = { min: 1, max: 2 };
-            this.db.updateData('configClient', config);
-            ram = { ramMin: "1", ramMax: "2" };
-        }
-
-        let slider = new Slider(".memory-slider", parseFloat(ram.ramMin), parseFloat(ram.ramMax));
-
-        let minSpan = document.querySelector(".slider-touch-left span");
-        let maxSpan = document.querySelector(".slider-touch-right span");
-
-        minSpan.setAttribute("value", `${ram.ramMin} Go`);
-        maxSpan.setAttribute("value", `${ram.ramMax} Go`);
-
-        slider.on("change", async (min, max) => {
-            let config = await this.db.readData('configClient');
-            minSpan.setAttribute("value", `${min} Go`);
-            maxSpan.setAttribute("value", `${max} Go`);
-            config.java_config.java_memory = { min: min, max: max };
-            this.db.updateData('configClient', config);
-        });
-    }
-
-    async javaPath() {
-        let javaPathText = document.querySelector(".java-path-txt")
-        javaPathText.textContent = `${await appdata()}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}/runtime`;
-
-        let configClient = await this.db.readData('configClient');
-        let javaPath = configClient?.java_config?.java_path || 'Utilice una versión propia de java';
-        let javaPathInputTxt = document.querySelector(".java-path-input-text");
-        let javaPathInputFile = document.querySelector(".java-path-input-file");
-        javaPathInputTxt.value = javaPath;
-
-        document.querySelector(".java-path-set").addEventListener("click", async () => {
-            javaPathInputFile.value = '';
-            javaPathInputFile.click();
-            await new Promise((resolve) => {
-                let interval;
-                interval = setInterval(() => {
-                    if (javaPathInputFile.value != '') resolve(clearInterval(interval));
-                }, 100);
-            });
-
-            if (javaPathInputFile.value.replace(".exe", '').endsWith("java") || javaPathInputFile.value.replace(".exe", '').endsWith("javaw")) {
-                let configClient = await this.db.readData('configClient');
-                let file = javaPathInputFile.files[0].path;
-                javaPathInputTxt.value = file;
-                configClient.java_config.java_path = file;
-                await this.db.updateData('configClient', configClient);
-            } else alert("El nombre del archivo debe ser java o javaw");
-        });
-
-        document.querySelector(".java-path-reset").addEventListener("click", async () => {
-            let configClient = await this.db.readData('configClient');
-            javaPathInputTxt.value = 'Utilice una versión propia de Java';
-            configClient.java_config.java_path = null;
-            await this.db.updateData('configClient', configClient);
-        });
-    }
+        if (minSpan) minSpan.setAttribute("value", `${min} Go`);
+        if (maxSpan) maxSpan.setAttribute("value", `${max} Go`);
+        config.java_config.java_memory = { min: min, max: max };
+        await this.db.updateData('configClient', config);
+    });
+}
 
     async resolution() {
         let configClient = await this.db.readData('configClient');
@@ -264,6 +227,17 @@ class Settings {
         let maxDownloadFiles = configClient?.launcher_config?.download_multi || 100;
         let maxDownloadFilesInput = document.querySelector(".max-files");
         let maxDownloadFilesReset = document.querySelector(".max-files-reset");
+
+        if (maxDownloadFilesInput) maxDownloadFilesInput.value = maxDownloadFiles;
+        if (maxDownloadFilesReset) {
+            maxDownloadFilesReset.addEventListener("click", async () => {
+                let configClient = await this.db.readData('configClient');
+                if (maxDownloadFilesInput) maxDownloadFilesInput.value = 100;
+                configClient.launcher_config.download_multi = 100;
+                await this.db.updateData('configClient', configClient);
+            });
+        }
+
         maxDownloadFilesInput.value = maxDownloadFiles;
 
         maxDownloadFilesInput.addEventListener("change", async () => {
@@ -279,38 +253,41 @@ class Settings {
             await this.db.updateData('configClient', configClient);
         });
 
-        let themeBox = document.querySelector(".theme-box");
-        let theme = configClient?.launcher_config?.theme || "auto";
+        /*
+// --- TEMPORAL: código de tema comentado porque ya no hay HTML ---
+let themeBox = document.querySelector(".theme-box");
+let theme = configClient?.launcher_config?.theme || "auto";
 
-        if (theme == "auto") document.querySelector('.theme-btn-auto').classList.add('active-theme');
-        else if (theme == "dark") document.querySelector('.theme-btn-sombre').classList.add('active-theme');
-        else if (theme == "light") document.querySelector('.theme-btn-clair').classList.add('active-theme');
+if (theme == "auto") document.querySelector('.theme-btn-auto').classList.add('active-theme');
+else if (theme == "dark") document.querySelector('.theme-btn-sombre').classList.add('active-theme');
+else if (theme == "light") document.querySelector('.theme-btn-clair').classList.add('active-theme');
 
-        themeBox.addEventListener("click", async e => {
-            if (!e.target.classList.contains('theme-btn')) return;
+themeBox.addEventListener("click", async e => {
+    if (!e.target.classList.contains('theme-btn')) return;
 
-            let activeTheme = document.querySelector('.active-theme');
-            if (e.target.classList.contains('active-theme')) return;
-            activeTheme?.classList.remove('active-theme');
+    let activeTheme = document.querySelector('.active-theme');
+    if (e.target.classList.contains('active-theme')) return;
+    activeTheme?.classList.remove('active-theme');
 
-            if (e.target.classList.contains('theme-btn-auto')) {
-                setBackground();
-                theme = "auto";
-                e.target.classList.add('active-theme');
-            } else if (e.target.classList.contains('theme-btn-sombre')) {
-                setBackground(true);
-                theme = "dark";
-                e.target.classList.add('active-theme');
-            } else if (e.target.classList.contains('theme-btn-clair')) {
-                setBackground(false);
-                theme = "light";
-                e.target.classList.add('active-theme');
-            }
+    if (e.target.classList.contains('theme-btn-auto')) {
+        setBackground();
+        theme = "auto";
+        e.target.classList.add('active-theme');
+    } else if (e.target.classList.contains('theme-btn-sombre')) {
+        setBackground(true);
+        theme = "dark";
+        e.target.classList.add('active-theme');
+    } else if (e.target.classList.contains('theme-btn-clair')) {
+        setBackground(false);
+        theme = "light";
+        e.target.classList.add('active-theme');
+    }
 
-            let configClient = await this.db.readData('configClient');
-            configClient.launcher_config.theme = theme;
-            await this.db.updateData('configClient', configClient);
-        });
+    let configClient = await this.db.readData('configClient');
+    configClient.launcher_config.theme = theme;
+    await this.db.updateData('configClient', configClient);
+});
+*/
     }
 }
 

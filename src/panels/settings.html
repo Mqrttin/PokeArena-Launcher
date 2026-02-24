@@ -3,7 +3,7 @@
         <p>Configuración</p>
         <div class="nav-box">
             <div id="account" class="nav-settings-btn active-settings-BTN">Cuentas</div>
-            <div id="java" class="nav-settings-btn">Java</div>
+            <div id="java" class="nav-settings-btn">Ram</div>
             <div id="resolution" class="nav-settings-btn">Minecraft</div>
             <div id="launcher" class="nav-settings-btn">Launcher</div>
             <div id="credits" class="nav-settings-btn">Redes</div>
@@ -51,23 +51,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="titre-tab">Ubicación de Java</div>
-        <div class="settings-elements-box">
-            <div class="setting-text">
-                El launcher tiene una versión integrada de Java.<br>
-                esa versión se encuentra en:<br><span class="java-path-txt"></span><br>
-                Sin embargo, puedes seleccionar tu propio ejecutable si tu juego requiere una versión superior de Java.
-            </div>
-            <div class="settings-elements content-evenly">
-                <input type="text" class="java-path-input-text" disabled>
-                <input type="file" class="java-path-input-file" accept="application/octet-stream" />
-                <div class="java-path-box">
-                    <div class="java-path-set java-path-btn">Cambiar</div>
-                    <div class="java-path-reset java-path-btn">Restablecer a predeterminado</div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div id="resolution-tab" class="container-settings">
@@ -87,20 +70,6 @@
                 <div class="size-reset size-btn">Restablecer a predeterminado</div>
             </div>
         </div>
-        <div class="titre-tab">Instancias</div>
-        <div class="settings-elements-box">
-    <div class="setting-text">
-        Instancias
-        <br>
-        Aquí podrás poner tus propios mods.
-    </div>
-    <div class="settings-elements content-center">
-        <button class="open-mods-btn" style="border:none; background:transparent; cursor:pointer;">
-            <img src="assets/images/carpeta.png" alt="Abrir Carpeta">
-        </button>
-    </div>
-</div>
-
     </div>
 
 <div id="credits-tab" class="container-settings">
@@ -141,7 +110,8 @@
         <div class="titre-tab">Configuración del Launcher</div>
         <div class="settings-elements-box">
             <div class="setting-text">
-                Esta configuración determina la cantidad máxima de archivos que se pueden descargar simultáneamente durante la descarga.<br><br>
+                Esta configuración determina la cantidad máxima de archivos que se pueden descargar<br>
+                simultáneamente durante la descarga.<br><br>
                 Tenga en cuenta que cambiar esta configuración puede afectar el rendimiento de la descarga.<br>
                 Se recomienda no exceder los límites recomendados por defecto,<br>
                 a menos que tengas problemas de conectividad específicos.
@@ -150,23 +120,6 @@
                 <input type="number" class="max-files input-max-files">
                 <p>Archivos</p>
                 <div class="max-files-reset max-files-btn">Restablecer a predeterminado</div>
-            </div>
-        </div>
-
-        <div class="titre-tab">Tema claro y oscuro</div>
-        <div class="settings-elements-box">
-            <div class="setting-text">
-                Elija entre tema claro y tema oscuro para personalizar la apariencia del Launcher.<br><br>
-                Cambiar el tema puede influir en la legibilidad y la experiencia visual.<br>
-                Selecciona el que más te convenga según tus preferencias.
-                <br>
-                <br>¡ADVERTENCIA! Lamentamos informar que los temas todavía no están funcionando
-                <br>Agradecemos su comprensión
-            </div>
-            <div class="settings-elements content-center theme-box">
-                <div class="theme-btn theme-btn-clair">Claro</div>
-                <div class="theme-btn theme-btn-sombre">Oscuro</div>
-                <div class="theme-btn theme-btn-auto">Automático</div>
             </div>
         </div>
 

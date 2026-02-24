@@ -37,10 +37,46 @@
             </div>
         </div>
 
-        <!-- NEWS -->
+        <!-- NEWS PANEL UNIFICADO -->
         <div class="home-bottom">
             <div class="new-tab">
-                <div class="news-list content-scroll"></div>
+                <div class="news-columns">
+
+                    <div class="news-list content-scroll">
+                        <div class="news-block">
+
+                            <!-- HEADER CON BOTONES -->
+                            <div class="news-header">
+                                <div class="header-text" style="display:flex; gap:20px;">
+                                    
+                                    <div class="titlenews tab-btn active" data-tab="news" data-translate="home.news">
+                                        Novedades
+                                    </div>
+
+                                    <div class="titlenews tab-btn" data-tab="tiktok">
+                                        TikTok
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- CONTENIDO DINÁMICO -->
+                            <div class="news-content" id="news-content">
+                                <p style="color: rgba(255,255,255,0.5); padding: 10px;">
+                                    No hay novedades disponibles por el momento.
+                                </p>
+                            </div>
+
+                            <div class="news-content" id="tiktok-content" style="display:none;">
+                                <p style="color: rgba(255,255,255,0.5); padding: 10px;">
+                                    Cargando TikTok...
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
 
@@ -49,17 +85,15 @@
     <!-- BOTÓN JUGAR Y ACCESO RAPIDO A CARPETA -->
     <div class="play-floating" style="display: flex; gap: 15px; align-items: center;">
 
-        <!-- BOTÓN JUGAR -->
         <div class="play-instance">
             <button class="play-btn">JUGAR</button>
         </div>
 
-        <!-- BOTÓN CARPETA -->
-        <div id="open-folder" class="open-folder-btn" data-tooltip="Abrir carpeta del launcher" style="width:55px; height:55px; border-radius:15px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:0.3s;">
+        <div id="open-folder" class="open-folder-btn" data-tooltip="Abrir carpeta del launcher"
+            style="width:55px; height:55px; border-radius:15px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:0.3s;">
             <img src="assets/images/carpeta.png" alt="Carpeta" style="width:28px; height:28px;">
         </div>
 
-        <!-- INFO DE DESCARGA -->
         <div class="info-starting-game">
             <div class="info-starting-game-text">Descargando...</div>
             <progress value="0" max="100" class="progress-bar"></progress>

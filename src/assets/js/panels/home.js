@@ -87,6 +87,48 @@ class Home {
         }, 150);
     });
 
+
+    // ------------------------------
+    // 🚀 AÑADE ESTO AL FINAL DE init()
+    // ------------------------------
+    let configClientFinal = await this.db.readData('configClient');
+    let instancia = configClientFinal.instance_selct || "cobblemon"; // fallback si no hay nada
+
+    let tipoInstancia = instancia.toLowerCase().includes("cobblemon") ? "cobblemon" : "pixelmon";
+
+    // Cargar noticias y TikTok según la instancia
+    await this.loadNewsAndTikTok(tipoInstancia);
+
+// ===============================
+// BOTONES NEWS / TIKTOK (adaptado a tu HTML real)
+// ===============================
+const tabButtons = document.querySelectorAll(".tab-btn");
+const newsContainer = document.getElementById("news-content");
+const tiktokContainer = document.getElementById("tiktok-content");
+
+tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+
+        // Quitar active a todos
+        tabButtons.forEach(b => b.classList.remove("active"));
+
+        // Activar el actual
+        btn.classList.add("active");
+
+        const tab = btn.dataset.tab;
+
+        if (tab === "news") {
+            newsContainer.style.display = "block";
+            tiktokContainer.style.display = "none";
+        }
+
+        if (tab === "tiktok") {
+            newsContainer.style.display = "none";
+            tiktokContainer.style.display = "block";
+        }
+    });
+});
+
         // Crear un div tooltip global
         const tooltip = document.createElement('div');
         tooltip.classList.add('tooltip');
@@ -142,6 +184,9 @@ class Home {
         });
 
     }
+
+    
+    
 
     // --- SOCIAL-BLOCKS ---
     initSocials() {
@@ -292,6 +337,7 @@ async instancesSelect() {
         if (instance) setStatus(instance.status)
 
         setBackgroundAnimated(undefined, undefined, type)
+        this.loadNewsAndTikTok(type)
     }
 })
 }
@@ -563,6 +609,99 @@ let options = instance.find(i => i.name == configClient.instance_selct)
             console.log(err);
         });
     }
+
+    
+async loadNewsAndTikTok(instanceType = "cobblemon") {
+    try {
+        const response = await fetch(`https://pokearena.wstr.fr/api_novedades?instancia=${instanceType}`);
+        const data = await response.json();
+
+        const newsContainer = document.getElementById("news-content");
+        const tiktokContainer = document.getElementById("tiktok-content");
+
+        if (!newsContainer || !tiktokContainer) return;
+
+        newsContainer.innerHTML = "";
+        tiktokContainer.innerHTML = "";
+
+        // ==========================
+        // NOTICIAS
+        // ==========================
+        if (data.mensajes && data.mensajes.length > 0) {
+            data.mensajes.slice(0, 5).forEach(msg => {
+                const date = this.getdate(msg.timestamp * 1000);
+
+                const div = document.createElement("div");
+                div.classList.add("news-item");
+
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${msg.avatar}" 
+                             style="width:40px;height:40px;border-radius:50%;">
+                        <div>
+                            <div class="news-item-title">
+                                ${msg.usuario}
+                            </div>
+                            <div class="news-item-sub">
+                                ${date.day} ${date.month} ${date.year}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        ${msg.contenido}
+                    </div>
+                `;
+
+                newsContainer.appendChild(div);
+            });
+        } else {
+            newsContainer.innerHTML = `<p>No hay novedades.</p>`;
+        }
+
+        // ==========================
+        // TIKTOK
+        // ==========================
+        if (data.tiktok && data.tiktok.url) {
+            const div = document.createElement("div");
+            div.classList.add("news-item");
+
+            div.innerHTML = `
+                <div class="news-item-title">Último TikTok</div>
+                <div class="news-item-sub">Haz click para verlo</div>
+                <img src="${data.tiktok.thumb}" 
+                     alt="Miniatura TikTok" 
+                     style="width:200px; max-width:100%; height:auto; border-radius:10px; margin-top:10px;">
+            `;
+
+            div.style.cursor = "pointer";
+            div.addEventListener("click", () => {
+                shell.openExternal(data.tiktok.url);
+            });
+
+            tiktokContainer.appendChild(div);
+        } else {
+            tiktokContainer.innerHTML = `<p>No hay TikTok reciente.</p>`;
+        }
+
+        // ==========================
+// RESET A TAB NOTICIAS (adaptado)
+// ==========================
+const tabButtons = document.querySelectorAll(".tab-btn");
+
+tabButtons.forEach(b => b.classList.remove("active"));
+
+const defaultTab = document.querySelector('[data-tab="news"]');
+if (defaultTab) defaultTab.classList.add("active");
+
+newsContainer.style.display = "block";
+tiktokContainer.style.display = "none";
+
+    } catch (err) {
+        console.error("Error cargando novedades:", err);
+    }
+}
+
+
 
     getdate(e) {
         let date = new Date(e)

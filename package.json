@@ -1,7 +1,7 @@
 {
     "name": "pokearena-launcher",
     "preductname": "PokeArena Launcher",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Launcher Oficial de PokeArena",
     "main": "src/app.js",
     "author": {
@@ -29,6 +29,7 @@
         "minecraft-server-util": "^5.4.4",
         "node-bdd": "^2.0.4",
         "node-fetch": "^2.7.0",
+        "three": "^0.183.1",
         "xml-js": "^1.6.11"
     },
     "devDependencies": {

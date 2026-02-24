@@ -91,10 +91,16 @@ async function setBackgroundAnimated(theme, urlFondo, instanceType) {
 setBackground(); // carga inicial del fondo
 
 async function changePanel(id) {
-    let panel = document.querySelector(`.${id}`);
-    let active = document.querySelector(`.active`);
-    if (active) active.classList.toggle("active");
-    panel.classList.add("active");
+    // 1. Quitar "active" de todos los panels
+    const panels = document.querySelectorAll('.panel');
+    panels.forEach(panel => panel.classList.remove('active'));
+
+    // 2. Agregar "active" solo al panel deseado
+    const targetPanel = document.querySelector(`.panel.${id}`);
+    if (targetPanel) targetPanel.classList.add('active');
+
+    // 3. Forzar repaint para evitar glitches visuales
+    void document.body.offsetHeight;
 }
 
 async function appdata() {
