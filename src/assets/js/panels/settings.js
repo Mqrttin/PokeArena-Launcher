@@ -142,42 +142,51 @@ class Settings {
 async ram() {
     let config = await this.db.readData('configClient');
     let totalMem = Math.trunc(os.totalmem() / 1073741824 * 10) / 10;
-    let freeMem = Math.trunc(os.freemem() / 1073741824 * 10) / 10;
 
-    let totalRAM = document.getElementById("total-ram");
-    let freeRAM = document.getElementById("free-ram");
-    let sliderDiv = document.querySelector(".memory-slider");
+    // Seleccionamos el bloque donde mostramos la info de RAM
+    let ramInfoBlock = document.querySelector(".ram-info-block");
 
-    if (totalRAM) totalRAM.textContent = `${totalMem} GB`;
-    if (freeRAM) freeRAM.textContent = `${freeMem} GB`;
-    if (sliderDiv) sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
-
+    // Obtenemos los valores actuales de RAM configurados
     let ram = config?.java_config?.java_memory ? {
         ramMin: config.java_config.java_memory.min,
         ramMax: config.java_config.java_memory.max
-    } : { ramMin: "1", ramMax: "2" };
+    } : { ramMin: 1, ramMax: 2 };
 
+    // Si la RAM total es menor a la mínima configurada, ajustamos
     if (totalMem < ram.ramMin) {
         config.java_config.java_memory = { min: 1, max: 2 };
         await this.db.updateData('configClient', config);
-        ram = { ramMin: "1", ramMax: "2" };
+        ram = { ramMin: 1, ramMax: 2 };
     }
+
+    // Inicializamos el slider
+    let sliderDiv = document.querySelector(".memory-slider");
+    if (sliderDiv) sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
 
     let slider = new Slider(".memory-slider", parseFloat(ram.ramMin), parseFloat(ram.ramMax));
 
-    let minSpan = document.querySelector(".slider-touch-left span");
-    let maxSpan = document.querySelector(".slider-touch-right span");
+    // Mostramos la info inicial de RAM
+    if (ramInfoBlock) {
+        ramInfoBlock.innerHTML = `
+            <b>Tienes <span style="color:#ff8c00">${totalMem}</span> GB de RAM total.</b><br>
+            Estás usando desde <span style="color:#ff8c00">${ram.ramMin}</span> GB hasta <span style="color:#ff8c00">${ram.ramMax}</span> GB.
+        `;
+    }
 
-    if (minSpan) minSpan.setAttribute("value", `${ram.ramMin} Go`);
-    if (maxSpan) maxSpan.setAttribute("value", `${ram.ramMax} Go`);
-
+    // Actualizamos la info cada vez que el slider cambie
     slider.on("change", async (min, max) => {
-        let config = await this.db.readData('configClient');
-        if (minSpan) minSpan.setAttribute("value", `${min} Go`);
-        if (maxSpan) maxSpan.setAttribute("value", `${max} Go`);
-        config.java_config.java_memory = { min: min, max: max };
-        await this.db.updateData('configClient', config);
-    });
+    let config = await this.db.readData('configClient');
+
+    if (ramInfoBlock) {
+        ramInfoBlock.innerHTML = `
+            <b>Tienes <span style="color:#ff8c00">${totalMem}</span> GB de RAM total.</b><br>
+            Estás usando desde <span style="color:#ff8c00">${min}</span> GB hasta <span style="color:#ff8c00">${max}</span> GB.
+        `;
+    }
+
+    config.java_config.java_memory = { min: min, max: max };
+    await this.db.updateData('configClient', config);
+});
 }
 
     async resolution() {

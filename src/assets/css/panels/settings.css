@@ -835,21 +835,6 @@
     overflow-x: hidden;
 }
 
-
-/* Estado inicial SOLO settings */
-.settings {
-    opacity: 0;
-    transform: scale(0.98) translateY(10px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-}
-
-/* Cuando settings ya está activo */
-.settings.settings-ready {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-}
-
-
 /* ================================================= */
 /* 🌅 SETTINGS ESTILO HOME MODERNO (NARANJA) */
 /* ================================================= */
@@ -1035,29 +1020,28 @@ input:focus {
 
 .settings {
     position: absolute;
-    left: 50%;                  /* centrado horizontal */
-    bottom: 30px;               /* distancia desde abajo */
-    transform: translateX(-50%); /* centrado perfecto */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* centra perfecto */
     
-    width: 90%;                 /* ancho de la caja */
-    max-width: 1200px;          /* opcional: ancho máximo */
-    height: 80%;                /* altura reducida, ajusta según quieras */
-    max-height: 680px;          /* opcional: limitar altura máxima */
+    width: 90%;
+    max-width: 1200px;
+    height: 80%;
+    max-height: 680px;
     
     background: linear-gradient(135deg, #0f0f14, #1a1a25);
     border-radius: 15px;
     overflow: hidden;
     box-sizing: border-box;
     
-    /* Animación */
+    /* animación */
     opacity: 0;
-    transform: translate(-50%, 20px) scale(0.98);
     transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .settings.settings-ready {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate(-50%, -50%);
 }
 
 /* Ajuste del sidebar dentro de settings */
