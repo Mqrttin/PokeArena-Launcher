@@ -1,0 +1,35 @@
+<div class="instances">
+    <div class="instances-page">
+
+        <div class="instances-header">
+            <div class="instances-header-left">
+                <h1 class="instances-title">Instancias</h1>
+                <p class="instances-subtitle">
+                    Selecciona una instancia y el perfil que quieras usar para jugar.
+                </p>
+            </div>
+
+            <button id="back-home" class="instances-back-btn">Volver</button>
+        </div>
+
+        <div class="instances-content">
+            <div class="instances-loading" id="instances-loading">
+                <div class="instances-loading-spinner"></div>
+                <span>Cargando instancias...</span>
+            </div>
+
+            <div class="instances-empty" id="instances-empty" style="display: none;">
+                <div class="instances-empty-icon">🗂️</div>
+                <h2>No hay instancias disponibles</h2>
+                <p>
+                    No se encontraron instancias configuradas en el launcher por el momento.
+                </p>
+            </div>
+
+            <div class="instances-rows" id="instances-rows" style="display: none;"></div>
+        </div>
+
+    </div>
+</div>
+
+<script src="assets/js/panels/instances.js"></script>

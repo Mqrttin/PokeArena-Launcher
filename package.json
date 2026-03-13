@@ -1,7 +1,7 @@
 {
     "name": "pokearena-launcher",
-    "preductname": "PokeArena Launcher",
-    "version": "1.0.7",
+    "productName": "PokeArena Launcher",
+    "version": "1.0.8",
     "description": "Launcher Oficial de PokeArena",
     "main": "src/app.js",
     "author": {
@@ -10,17 +10,29 @@
         "url": "https://github.com/Mqrttin"
     },
     "url": "https://pokearena.wstr.fr/PA",
+
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
         "build": "node build.js --obf=true --build=platform",
         "icon": "node build.js --icon=https://raw.githubusercontent.com/luuxis/Selvania-Launcher/master/src/assets/images/icon.png"
     },
+
     "license": "CCANC",
+
     "nodemonConfig": {
         "ext": "js,html,css",
         "ignore": "**/test"
     },
+
+    "build": {
+        "appId": "com.pokearena.launcher",
+        "productName": "PokeArena Launcher",
+        "win": {
+            "requestedExecutionLevel": "highestAvailable"
+        }
+    },
+
     "dependencies": {
         "azuriom-auth": "^1.0.1",
         "discord-rich-presence": "^0.0.8",
@@ -32,6 +44,7 @@
         "three": "^0.183.1",
         "xml-js": "^1.6.11"
     },
+
     "devDependencies": {
         "cross-env": "^7.0.3",
         "electron": "^30.0.9",
@@ -41,6 +54,7 @@
         "nodemon": "^3.1.2",
         "png2icons": "^2.0.1"
     },
+
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Mqrttin/PokeArena-Launcher.git"

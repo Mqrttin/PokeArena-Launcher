@@ -4,43 +4,71 @@
  */
 import { config, database, logger, changePanel, appdata, setStatus, pkg, popup, setBackgroundAnimated } from '../utils.js'
 
-const { Launch } = require('minecraft-java-core')
+const { Launch, Microsoft } = require('minecraft-java-core')
 const { shell, ipcRenderer } = require('electron')
 
 class Home {
     static id = "home";
-    async init(config) {
-    this.config = config;
-    this.db = new database();
 
-    let configClient = await this.db.readData('configClient');
+    getInstanceType(instanceName = "") {
+        const name = String(instanceName).toLowerCase()
 
-    if (!configClient || Object.keys(configClient).length === 0) {
-        console.log("Creando configClient por primera vez");
+        if (name.includes("cobblemon")) return "cobblemon"
+        if (name.includes("pixelmon")) return "pixelmon"
 
-        await this.db.createData('configClient', {
-            account_selected: null,
-            instance_selct: null,
-            launcher_config: {
-                closeLauncher: "close-launcher",
-                download_multi: true,
-                intelEnabledMac: false
-            },
-            java_config: {
-                java_path: null,
-                java_memory: {
-                    min: 2,
-                    max: 4
-                }
-            },
-            game_config: {
-                screen_size: {
-                    width: 854,
-                    height: 480
-                }
-            }
-        });
+        return null
     }
+
+    getInstanceUIName(instanceName = "") {
+        const name = String(instanceName)
+
+        if (name.toLowerCase().includes("cobblemon")) {
+            if (name.toLowerCase().includes("bajos recursos")) return "Cobblemon (Bajos Recursos)"
+            if (name.toLowerCase().includes("altos recursos")) return "Cobblemon (Altos Recursos)"
+            return "Cobblemon"
+        }
+
+        if (name.toLowerCase().includes("pixelmon")) {
+            if (name.toLowerCase().includes("bajos recursos")) return "Pixelmon (Bajos Recursos)"
+            if (name.toLowerCase().includes("altos recursos")) return "Pixelmon (Altos Recursos)"
+            return "Pixelmon"
+        }
+
+        return name
+    }
+
+    async init(config) {
+        this.config = config;
+        this.db = new database();
+
+        let configClient = await this.db.readData('configClient');
+
+        if (!configClient || Object.keys(configClient).length === 0) {
+            console.log("Creando configClient por primera vez");
+
+            await this.db.createData('configClient', {
+                account_selected: null,
+                instance_selct: null,
+                launcher_config: {
+                    closeLauncher: "close-launcher",
+                    download_multi: true,
+                    intelEnabledMac: false
+                },
+                java_config: {
+                    java_path: null,
+                    java_memory: {
+                        min: 2,
+                        max: 4
+                    }
+                },
+                game_config: {
+                    screen_size: {
+                        width: 854,
+                        height: 480
+                    }
+                }
+            });
+        }
 
         // --- FUNCIONES DE LOGOS Y REDES ---
         this.initSocials();
@@ -74,60 +102,82 @@ class Home {
             });
         }
 
-            // --- CLICK EN PLAYER HEAD → ABRIR AJUSTES EN CUENTAS ---
+        // --- CLICK EN PLAYER HEAD → ABRIR AJUSTES EN CUENTAS ---
         document.querySelector(".player-head").addEventListener("click", () => {
 
-        // 1) Abrir menú de ajustes
-        document.querySelector(".settings-btn").click();
+            // 1) Abrir menú de ajustes
+            document.querySelector(".settings-btn").click();
 
-        // 2) Esperar a que el panel settings cargue y abrir "Cuentas"
-        setTimeout(() => {
-            let btn = document.getElementById("account");
-            if (btn) btn.click();
-        }, 150);
-    });
+            // 2) Esperar a que el panel settings cargue y abrir "Cuentas"
+            setTimeout(() => {
+                let btn = document.getElementById("account");
+                if (btn) btn.click();
+            }, 150);
+        });
 
 
-    // ------------------------------
-    // 🚀 AÑADE ESTO AL FINAL DE init()
-    // ------------------------------
-    let configClientFinal = await this.db.readData('configClient');
-    let instancia = configClientFinal.instance_selct || "cobblemon"; // fallback si no hay nada
+        // ------------------------------
+        // 🚀 AÑADE ESTO AL FINAL DE init()
+        // ------------------------------
+        let configClientFinal = await this.db.readData('configClient');
+        let instancia = configClientFinal.instance_selct || "cobblemon"; // fallback si no hay nada
 
-    let tipoInstancia = instancia.toLowerCase().includes("cobblemon") ? "cobblemon" : "pixelmon";
+        let tipoInstancia = this.getInstanceType(instancia) || "cobblemon";
 
-    // Cargar noticias y TikTok según la instancia
-    await this.loadNewsAndTikTok(tipoInstancia);
+        // Cargar noticias y TikTok según la instancia
+        await this.loadNewsAndTikTok(tipoInstancia);
 
-// ===============================
-// BOTONES NEWS / TIKTOK (adaptado a tu HTML real)
-// ===============================
-const tabButtons = document.querySelectorAll(".tab-btn");
-const newsContainer = document.getElementById("news-content");
-const tiktokContainer = document.getElementById("tiktok-content");
+        document.addEventListener('instance:selected', async (e) => {
+        const instance = e.detail?.instance
+        if (!instance) return
 
-tabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
+        const instanceName = instance.name || ""
+        const instanceType = this.getInstanceType(instanceName)
+        const uiName = this.getInstanceUIName(instanceName)
 
-        // Quitar active a todos
-        tabButtons.forEach(b => b.classList.remove("active"));
-
-        // Activar el actual
-        btn.classList.add("active");
-
-        const tab = btn.dataset.tab;
-
-        if (tab === "news") {
-            newsContainer.style.display = "block";
-            tiktokContainer.style.display = "none";
+        const statusName = document.querySelector('.server-status-name')
+        if (statusName) {
+            statusName.innerHTML = uiName
         }
 
-        if (tab === "tiktok") {
-            newsContainer.style.display = "none";
-            tiktokContainer.style.display = "block";
+        if (instance.status) {
+            setStatus(instance.status)
         }
-    });
-});
+
+        setBackgroundAnimated(undefined, undefined, instanceType)
+
+        await this.loadNewsAndTikTok(instanceType || "cobblemon")
+    })
+
+        // ===============================
+        // BOTONES NEWS / TIKTOK (adaptado a tu HTML real)
+        // ===============================
+        const tabButtons = document.querySelectorAll(".tab-btn");
+        const newsContainer = document.getElementById("news-content");
+        const tiktokContainer = document.getElementById("tiktok-content");
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+
+                // Quitar active a todos
+                tabButtons.forEach(b => b.classList.remove("active"));
+
+                // Activar el actual
+                btn.classList.add("active");
+
+                const tab = btn.dataset.tab;
+
+                if (tab === "news") {
+                    newsContainer.style.display = "block";
+                    tiktokContainer.style.display = "none";
+                }
+
+                if (tab === "tiktok") {
+                    newsContainer.style.display = "none";
+                    tiktokContainer.style.display = "block";
+                }
+            });
+        });
 
         // Crear un div tooltip global
         const tooltip = document.createElement('div');
@@ -185,9 +235,6 @@ tabButtons.forEach(btn => {
 
     }
 
-    
-    
-
     // --- SOCIAL-BLOCKS ---
     initSocials() {
         let socials = document.querySelectorAll('.social-block')
@@ -197,7 +244,6 @@ tabButtons.forEach(btn => {
             })
         });
     }
-    
 
     // --- LOGOS DE PARTNERS ---
     initPartnerLogos() {
@@ -216,131 +262,48 @@ tabButtons.forEach(btn => {
         });
     }
 
-async instancesSelect() {
+    async instancesSelect() {
 
-    let configClient = await this.db.readData('configClient')
-    let instancesList = await config.getInstanceList()
-    let instanceSelect = configClient.instance_selct
+        let configClient = await this.db.readData('configClient')
+        let instancesList = await config.getInstanceList()
+        let instanceSelect = configClient.instance_selct
 
-    let playBTN = document.querySelector('.play-instance')
-    let statusServer = document.querySelector('.status-server')
-    let instancePopup = document.querySelector('.instance-popup')
+        let playBTN = document.querySelector('.play-instance')
+        let statusServer = document.querySelector('.status-server')
 
-    // ===============================
-    // MOSTRAR INSTANCIA ACTUAL
-    // ===============================
-    if (instanceSelect) {
+        // ===============================
+        // MOSTRAR INSTANCIA ACTUAL
+        // ===============================
+        if (instanceSelect) {
 
-    let uiName = ""
-    let instanceType = null
+            let uiName = this.getInstanceUIName(instanceSelect)
+            let instanceType = this.getInstanceType(instanceSelect)
 
-    if (instanceSelect.startsWith("Cobblemon")) {
-        instanceType = "cobblemon"
-        uiName = instanceSelect.includes("Low")
-            ? "Cobblemon (Bajos Recursos)"
-            : "Cobblemon (Altos Recursos)"
-    } else if (instanceSelect.startsWith("Pixelmon")) {
-        instanceType = "pixelmon"
-        uiName = instanceSelect.includes("Low")
-            ? "Pixelmon (Bajos Recursos)"
-            : "Pixelmon (Altos Recursos)"
-    } else {
-        uiName = instanceSelect
+            document.querySelector('.server-status-name').innerHTML = uiName
+
+            let instanceInfo = instancesList.find(i => i.name === instanceSelect)
+            if (instanceInfo) setStatus(instanceInfo.status)
+
+            // ⚡ Ahora el fondo se carga correctamente según la instancia guardada
+            setBackgroundAnimated(undefined, undefined, instanceType)
+        }
+
+        // ===============================
+        // BOTÓN JUGAR
+        // ===============================
+        playBTN.onclick = () => {
+            this.startGame()
+        }
+
+        // ===============================
+        // ABRIR NUEVO PANEL DE INSTANCIAS
+        // ===============================
+        if (statusServer) {
+            statusServer.onclick = () => {
+                changePanel('instances')
+            }
+        }
     }
-
-    document.querySelector('.server-status-name').innerHTML = uiName
-
-    let instanceInfo = instancesList.find(i => i.name === instanceSelect)
-    if (instanceInfo) setStatus(instanceInfo.status)
-
-    // ⚡ Ahora el fondo se carga correctamente según la instancia guardada
-    setBackgroundAnimated(undefined, undefined, instanceType)
-}
-
-    // ===============================
-    // BOTÓN JUGAR
-    // ===============================
-    playBTN.onclick = () => {
-        this.startGame()
-    }
-
-    // ===============================
-    // CONTROL GLOBAL POPUP
-    // ===============================
-
-    // Evita duplicar listeners
-    document.onclick = null
-    document.onkeydown = null
-
-    document.addEventListener('click', (e) => {
-
-        // Abrir popup
-        if (e.target.closest('.status-server') || e.target.closest('.selected-instance-box')) {
-            instancePopup.classList.add('active')
-        }
-
-        // Cerrar con X
-        if (e.target.closest('.close-popup')) {
-            instancePopup.classList.remove('active')
-        }
-
-        // Cerrar click fuera
-        if (e.target.classList.contains('instance-popup')) {
-            instancePopup.classList.remove('active')
-        }
-    })
-
-    // Cerrar con ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            instancePopup.classList.remove('active')
-        }
-    })
-
-    // ===============================
-    // BOTONES LOW / HIGH
-    // ===============================
-    document.querySelectorAll('.profile-btn').forEach(btn => {
-
-    btn.onclick = async e => {
-
-        const box = e.target.closest('.instance-box')
-        const type = box.dataset.type
-        const profile = e.target.dataset.profile
-
-        // 🔥 CERRAR INMEDIATO (ANTES DE TODO)
-        instancePopup.classList.remove('active')
-
-        let instanceName = ""
-
-        if (type === "cobblemon") {
-            instanceName = profile === "low"
-                ? "Cobblemon Low Profile"
-                : "Cobblemon High Profile"
-        }
-
-        if (type === "pixelmon") {
-            instanceName = profile === "low"
-                ? "Pixelmon Low Profile"
-                : "Pixelmon High Profile"
-        }
-
-        configClient.instance_selct = instanceName
-        await this.db.updateData('configClient', configClient)
-
-        document.querySelector('.server-status-name').innerHTML =
-            type.charAt(0).toUpperCase() + type.slice(1) +
-            (profile === "low" ? " (Bajos Recursos)" : " (Altos Recursos)")
-
-        let list = await config.getInstanceList()
-        let instance = list.find(i => i.name === instanceName)
-        if (instance) setStatus(instance.status)
-
-        setBackgroundAnimated(undefined, undefined, type)
-        this.loadNewsAndTikTok(type)
-    }
-})
-}
 
     async startGame() {
 
@@ -349,83 +312,122 @@ async instancesSelect() {
 
         let launch = new Launch()
 
-let configClient = await this.db.readData('configClient')
-console.log("CONFIG CLIENT =>", configClient)
+        let configClient = await this.db.readData('configClient')
+        console.log("CONFIG CLIENT =>", configClient)
 
-let instance = await config.getInstanceList()
+        let instance = await config.getInstanceList()
 
-console.log("ACCOUNT_SELECTED =>", configClient.account_selected)
+        console.log("ACCOUNT_SELECTED =>", configClient.account_selected)
 
-let authenticator = await this.db.readData('accounts', configClient.account_selected)
-console.log("AUTH OBJECT =>", authenticator)
+        let authenticator = await this.db.readData('accounts', configClient.account_selected)
+        console.log("AUTH OBJECT =>", authenticator)
 
-// ===============================
-// 🔐 COMPATIBILIDAD CUENTAS (HOME ANTIGUO)
-// ===============================
+        // ======================================
+        // 🔄 REFRESH AUTOMÁTICO CUENTA MICROSOFT
+        // ======================================
 
-// 1️⃣ No hay cuenta seleccionada
-if (!configClient.account_selected) {
-    let pop = new popup()
-    pop.openPopup({
-        title: 'Cuenta no seleccionada',
-        content: 'Debes iniciar sesión con una cuenta premium para jugar.',
-        color: 'red',
-        options: true
-    })
-    changePanel('login')
-    return
-}
+        if (authenticator && authenticator.meta?.type === 'Xbox') {
 
-// 2️⃣ Cuenta no existe en DB
-if (!authenticator) {
-    let pop = new popup()
-    pop.openPopup({
-        title: 'Cuenta inválida',
-        content: 'La cuenta seleccionada no existe. Inicia sesión nuevamente.',
-        color: 'red',
-        options: true
-    })
-    changePanel('login')
-    return
-}
+            console.log("Refrescando sesión Microsoft antes de iniciar...")
 
-// 3️⃣ Sesión premium incompleta (CAUSA DEL ERROR)
-if (
-    !authenticator.access_token ||
-    !authenticator.client_token ||
-    !authenticator.uuid ||
-    !authenticator.name
-) {
-    let pop = new popup()
-    pop.openPopup({
-        title: 'Sesión expirada',
-        content: 'Tu sesión premium expiró. Inicia sesión nuevamente.',
-        color: 'red',
-        options: true
-    })
-    changePanel('login')
-    return
-}
+            try {
+                let refreshed = await new Microsoft(this.config.client_id).refresh(authenticator)
 
-// 4️⃣ Bloquear offline accidental
-if (authenticator.offline === true) {
-    let pop = new popup()
-    pop.openPopup({
-        title: 'Cuenta no premium',
-        content: 'Esta instancia requiere una cuenta premium.',
-        color: 'red',
-        options: true
-    })
-    return
-}
+                if (refreshed.error) {
+                    throw new Error("Refresh inválido")
+                }
 
-// ===============================
-// ✅ FIN COMPATIBILIDAD ANTIGUA
-// ===============================
+                refreshed.ID = authenticator.ID
+
+                await this.db.updateData('accounts', refreshed, authenticator.ID)
+
+                authenticator = refreshed
+
+                console.log("Sesión refrescada correctamente ✅")
+
+            } catch (err) {
+
+                console.log("Error refrescando sesión:", err)
+
+                let pop = new popup()
+                pop.openPopup({
+                    title: 'Sesión expirada',
+                    content: 'Tu sesión expiró. Inicia sesión nuevamente.',
+                    color: 'red',
+                    options: true
+                })
+
+                changePanel('login')
+                return
+            }
+        }
+
+        // ===============================
+        // 🔐 COMPATIBILIDAD CUENTAS (HOME ANTIGUO)
+        // ===============================
+
+        // 1️⃣ No hay cuenta seleccionada
+        if (!configClient.account_selected) {
+            let pop = new popup()
+            pop.openPopup({
+                title: 'Cuenta no seleccionada',
+                content: 'Debes iniciar sesión con una cuenta premium para jugar.',
+                color: 'red',
+                options: true
+            })
+            changePanel('login')
+            return
+        }
+
+        // 2️⃣ Cuenta no existe en DB
+        if (!authenticator) {
+            let pop = new popup()
+            pop.openPopup({
+                title: 'Cuenta inválida',
+                content: 'La cuenta seleccionada no existe. Inicia sesión nuevamente.',
+                color: 'red',
+                options: true
+            })
+            changePanel('login')
+            return
+        }
+
+        // 3️⃣ Sesión premium incompleta (CAUSA DEL ERROR)
+        if (
+            !authenticator.access_token ||
+            !authenticator.client_token ||
+            !authenticator.uuid ||
+            !authenticator.name
+        ) {
+            let pop = new popup()
+            pop.openPopup({
+                title: 'Sesión expirada',
+                content: 'Tu sesión premium expiró. Inicia sesión nuevamente.',
+                color: 'red',
+                options: true
+            })
+            changePanel('login')
+            return
+        }
+
+        // 4️⃣ Bloquear offline accidental
+        if (authenticator.offline === true) {
+            let pop = new popup()
+            pop.openPopup({
+                title: 'Cuenta no premium',
+                content: 'Esta instancia requiere una cuenta premium.',
+                color: 'red',
+                options: true
+            })
+            return
+        }
+
+        // ===============================
+        // ✅ FIN COMPATIBILIDAD ANTIGUA
+        // ===============================
 
 
-let options = instance.find(i => i.name == configClient.instance_selct)
-
+        let options = instance.find(i => i.name == configClient.instance_selct)
 
         let playInstanceBTN = document.querySelector('.play-instance')
         let infoStartingBOX = document.querySelector('.info-starting-game')
@@ -466,7 +468,6 @@ let options = instance.find(i => i.name == configClient.instance_selct)
             }
         }
         
-
         ipcRenderer.send('minecraft-launch');
 
         // --- 🔧 LIMPIEZA AUTOMÁTICA MULTIVERSIÓN ---
@@ -537,10 +538,9 @@ let options = instance.find(i => i.name == configClient.instance_selct)
 
             if (currentStep >= steps.length) {
                 clearInterval(prepInterval);
-            // Aquí se queda la barra visible si hay descargas reales
+                // Aquí se queda la barra visible si hay descargas reales
             }
         }, 700);
-
 
         launch.on('progress', (percent) => {
             clearInterval(prepInterval);
@@ -610,98 +610,95 @@ let options = instance.find(i => i.name == configClient.instance_selct)
         });
     }
 
-    
-async loadNewsAndTikTok(instanceType = "cobblemon") {
-    try {
-        const response = await fetch(`https://pokearena.wstr.fr/api_novedades?instancia=${instanceType}`);
-        const data = await response.json();
+    async loadNewsAndTikTok(instanceType = "cobblemon") {
+        try {
+            const response = await fetch(`https://pokearena.wstr.fr/api_novedades?instancia=${instanceType}`);
+            const data = await response.json();
 
-        const newsContainer = document.getElementById("news-content");
-        const tiktokContainer = document.getElementById("tiktok-content");
+            const newsContainer = document.getElementById("news-content");
+            const tiktokContainer = document.getElementById("tiktok-content");
 
-        if (!newsContainer || !tiktokContainer) return;
+            if (!newsContainer || !tiktokContainer) return;
 
-        newsContainer.innerHTML = "";
-        tiktokContainer.innerHTML = "";
+            newsContainer.innerHTML = "";
+            tiktokContainer.innerHTML = "";
 
-        // ==========================
-        // NOTICIAS
-        // ==========================
-        if (data.mensajes && data.mensajes.length > 0) {
-            data.mensajes.slice(0, 5).forEach(msg => {
-                const date = this.getdate(msg.timestamp * 1000);
+            // ==========================
+            // NOTICIAS
+            // ==========================
+            if (data.mensajes && data.mensajes.length > 0) {
+                data.mensajes.slice(0, 5).forEach(msg => {
+                    const date = this.getdate(msg.timestamp * 1000);
 
+                    const div = document.createElement("div");
+                    div.classList.add("news-item");
+
+                    div.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${msg.avatar}" 
+                                 style="width:40px;height:40px;border-radius:50%;">
+                            <div>
+                                <div class="news-item-title">
+                                    ${msg.usuario}
+                                </div>
+                                <div class="news-item-sub">
+                                    ${date.day} ${date.month} ${date.year}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            ${msg.contenido}
+                        </div>
+                    `;
+
+                    newsContainer.appendChild(div);
+                });
+            } else {
+                newsContainer.innerHTML = `<p>No hay novedades.</p>`;
+            }
+
+            // ==========================
+            // TIKTOK
+            // ==========================
+            if (data.tiktok && data.tiktok.url) {
                 const div = document.createElement("div");
                 div.classList.add("news-item");
 
                 div.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <img src="${msg.avatar}" 
-                             style="width:40px;height:40px;border-radius:50%;">
-                        <div>
-                            <div class="news-item-title">
-                                ${msg.usuario}
-                            </div>
-                            <div class="news-item-sub">
-                                ${date.day} ${date.month} ${date.year}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="margin-top:10px;">
-                        ${msg.contenido}
-                    </div>
+                    <div class="news-item-title">Último TikTok</div>
+                    <div class="news-item-sub">Haz click para verlo</div>
+                    <img src="${data.tiktok.thumb}" 
+                         alt="Miniatura TikTok" 
+                         style="width:200px; max-width:100%; height:auto; border-radius:10px; margin-top:10px;">
                 `;
 
-                newsContainer.appendChild(div);
-            });
-        } else {
-            newsContainer.innerHTML = `<p>No hay novedades.</p>`;
+                div.style.cursor = "pointer";
+                div.addEventListener("click", () => {
+                    shell.openExternal(data.tiktok.url);
+                });
+
+                tiktokContainer.appendChild(div);
+            } else {
+                tiktokContainer.innerHTML = `<p>No hay TikTok reciente.</p>`;
+            }
+
+            // ==========================
+            // RESET A TAB NOTICIAS (adaptado)
+            // ==========================
+            const tabButtons = document.querySelectorAll(".tab-btn");
+
+            tabButtons.forEach(b => b.classList.remove("active"));
+
+            const defaultTab = document.querySelector('[data-tab="news"]');
+            if (defaultTab) defaultTab.classList.add("active");
+
+            newsContainer.style.display = "block";
+            tiktokContainer.style.display = "none";
+
+        } catch (err) {
+            console.error("Error cargando novedades:", err);
         }
-
-        // ==========================
-        // TIKTOK
-        // ==========================
-        if (data.tiktok && data.tiktok.url) {
-            const div = document.createElement("div");
-            div.classList.add("news-item");
-
-            div.innerHTML = `
-                <div class="news-item-title">Último TikTok</div>
-                <div class="news-item-sub">Haz click para verlo</div>
-                <img src="${data.tiktok.thumb}" 
-                     alt="Miniatura TikTok" 
-                     style="width:200px; max-width:100%; height:auto; border-radius:10px; margin-top:10px;">
-            `;
-
-            div.style.cursor = "pointer";
-            div.addEventListener("click", () => {
-                shell.openExternal(data.tiktok.url);
-            });
-
-            tiktokContainer.appendChild(div);
-        } else {
-            tiktokContainer.innerHTML = `<p>No hay TikTok reciente.</p>`;
-        }
-
-        // ==========================
-// RESET A TAB NOTICIAS (adaptado)
-// ==========================
-const tabButtons = document.querySelectorAll(".tab-btn");
-
-tabButtons.forEach(b => b.classList.remove("active"));
-
-const defaultTab = document.querySelector('[data-tab="news"]');
-if (defaultTab) defaultTab.classList.add("active");
-
-newsContainer.style.display = "block";
-tiktokContainer.style.display = "none";
-
-    } catch (err) {
-        console.error("Error cargando novedades:", err);
     }
-}
-
-
 
     getdate(e) {
         let date = new Date(e)

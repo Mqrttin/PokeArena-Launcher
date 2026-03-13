@@ -6,7 +6,8 @@
 const pkg = require('../package.json');
 const nodeFetch = require("node-fetch");
 const convert = require('xml-js');
-let url = pkg.user ? `${pkg.url}/${pkg.user}` : pkg.url
+
+let url = pkg.user ? `${pkg.url}/${pkg.user}` : pkg.url;
 
 let config = `${url}/launcher/config-launcher/config.json`;
 let news = `${url}/launcher/news-launcher/news.json`;
@@ -19,49 +20,75 @@ class Config {
                 else return reject({ error: { code: config.statusText, message: 'server not accessible' } });
             }).catch(error => {
                 return reject({ error });
-            })
-        })
+            });
+        });
     }
 
     async getInstanceList() {
-        let urlInstance = `${url}/files`
-        let instances = await nodeFetch(urlInstance).then(res => res.json()).catch(err => err)
-        let instancesList = []
-        instances = Object.entries(instances)
+        let urlInstance = `${url}/files`;
+        let instances = await nodeFetch(urlInstance).then(res => res.json()).catch(err => err);
+        let instancesList = [];
+
+        if (!instances || typeof instances !== 'object') {
+            return instancesList;
+        }
+
+        instances = Object.entries(instances);
 
         for (let [name, data] of instances) {
-            let instance = data
-            instance.name = name
-            instancesList.push(instance)
+            let instance = {
+                name: name,
+                image: data?.image || '',
+                loadder: {
+                    minecraft_version: data?.loadder?.minecraft_version || '',
+                    loadder_type: data?.loadder?.loadder_type || '',
+                    loadder_version: data?.loadder?.loadder_version || ''
+                },
+                verify: data?.verify ?? false,
+                ignored: Array.isArray(data?.ignored) ? data.ignored : [],
+                whitelist: Array.isArray(data?.whitelist) ? data.whitelist : [],
+                whitelistActive: data?.whitelistActive ?? false,
+                status: {
+                    nameServer: data?.status?.nameServer || '',
+                    ip: data?.status?.ip || ''
+                },
+                ...data
+            };
+
+            instancesList.push(instance);
         }
-        return instancesList
+
+        return instancesList;
     }
 
     async getNews() {
-        let config = await this.GetConfig() || {}
+        let config = await this.GetConfig() || {};
 
         if (config.rss) {
             return new Promise((resolve, reject) => {
                 nodeFetch(config.rss).then(async config => {
                     if (config.status === 200) {
                         let news = [];
-                        let response = await config.text()
+                        let response = await config.text();
                         response = (JSON.parse(convert.xml2json(response, { compact: true })))?.rss?.channel?.item;
 
                         if (!Array.isArray(response)) response = [response];
+
                         for (let item of response) {
                             news.push({
                                 title: item.title._text,
                                 content: item['content:encoded']._text,
                                 author: item['dc:creator']._text,
                                 publish_date: item.pubDate._text
-                            })
+                            });
                         }
+
                         return resolve(news);
+                    } else {
+                        return reject({ error: { code: config.statusText, message: 'server not accessible' } });
                     }
-                    else return reject({ error: { code: config.statusText, message: 'server not accessible' } });
-                }).catch(error => reject({ error }))
-            })
+                }).catch(error => reject({ error }));
+            });
         } else {
             return new Promise((resolve, reject) => {
                 nodeFetch(news).then(async config => {
@@ -69,10 +96,10 @@ class Config {
                     else return reject({ error: { code: config.statusText, message: 'server not accessible' } });
                 }).catch(error => {
                     return reject({ error });
-                })
-            })
+                });
+            });
         }
     }
 }
 
-export default new Config;
+export default new Config();

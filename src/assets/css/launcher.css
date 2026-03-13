@@ -7,6 +7,7 @@
 @import 'panels/login.css';
 @import 'panels/home.css';
 @import 'panels/settings.css';
+@import 'panels/instances.css';
 
 body {
     margin: 0;
