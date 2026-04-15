@@ -522,36 +522,44 @@ class Home {
         progressBar.value = 0;
         progressBar.max = 100;
 
-        // Pasos de preparación simulados (si no hay descarga)
-        const steps = [
-            { text: 'Verificando archivos...', value: 25 },
-            { text: 'Preparando librerías...', value: 50 },
-            { text: 'Configurando instancia...', value: 75 },
-            { text: 'Ejecutando!', value: 100 }
-        ];
+        launch.on('progress', (downloaded, total) => {
 
-        let currentStep = 0;
-        const prepInterval = setInterval(() => {
-            progressBar.value = steps[currentStep].value;
-            infoStarting.innerHTML = steps[currentStep].text;
-            currentStep++;
+            const safeDownloaded = Number(downloaded) || 0;
+            const safeTotal = Number(total) || 0;
 
-            if (currentStep >= steps.length) {
-                clearInterval(prepInterval);
-                // Aquí se queda la barra visible si hay descargas reales
-            }
-        }, 700);
+            const percent =
+                safeTotal > 0
+                    ? (safeDownloaded / safeTotal) * 100
+                    : 0;
 
-        launch.on('progress', (percent) => {
-            clearInterval(prepInterval);
-            const clean = Math.min(Math.max(percent, 0), 100);
-            infoStarting.innerHTML = `Descargando ${clean.toFixed(0)}%`;
+            const clean =
+                Math.min(Math.max(percent, 0), 100);
+
+            const downloadedMB =
+                (safeDownloaded / 1024 / 1024).toFixed(2);
+
+            const totalMB =
+                safeTotal > 0
+                    ? (safeTotal / 1024 / 1024).toFixed(2)
+                    : '0.00';
+
+            infoStarting.innerHTML =
+                `Descargando ${clean.toFixed(0)}% · ${downloadedMB} MB / ${totalMB} MB`;
+
             progressBar.value = clean;
-            progressBar.max = 100;
+
+            ipcRenderer.send('main-window-progress', {
+                progress: safeDownloaded,
+                size: safeTotal > 0 ? safeTotal : 1
+            });
+
         });
 
         launch.on('extract', file => {
-            infoStarting.innerHTML = `Verificando ${file}`
+
+            infoStarting.innerHTML =
+                `Verificando archivos...`;
+
         });
 
         launch.on('estimated', (time) => {
@@ -572,6 +580,9 @@ class Home {
         });
 
         launch.on('data', (e) => {
+
+            ipcRenderer.send('main-window-progress-reset');
+            
             progressBar.style.display = "none"
             if (configClient.launcher_config.closeLauncher == 'close-launcher') {
                 ipcRenderer.send("main-window-hide")
